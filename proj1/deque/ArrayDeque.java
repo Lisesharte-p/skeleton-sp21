@@ -2,7 +2,7 @@ package deque;
 
 import java.util.Iterator;
 
-public class ArrayDeque<T> implements ArrayList<T> {
+public class ArrayDeque<T> implements Deque<T>   {
     public int size;
     public int capacity;
     public T[] data;
@@ -53,13 +53,13 @@ public class ArrayDeque<T> implements ArrayList<T> {
 
     }
 
-    @Override
+
     public T getFirst() {
 
         return data[head];
     }
 
-    @Override
+
     public T getLast() {
         if(tail!=0)
         {
@@ -118,7 +118,7 @@ public class ArrayDeque<T> implements ArrayList<T> {
         return res;
     }
 
-    @Override
+
     public void insert(T x, int position) {
         if(isEmpty()){
             data[(head+position)%capacity]=x;
@@ -140,7 +140,7 @@ public class ArrayDeque<T> implements ArrayList<T> {
         return size;
     }
 
-    @Override
+
     public void resize(int capacity) {
         T[] newData=(T[]) new Object[capacity];
         int length=tail-head;
@@ -195,7 +195,7 @@ public class ArrayDeque<T> implements ArrayList<T> {
             return returnItem;
         }
     }
-    @Override
+
     public Iterator<T> iterator() {
         return new ArrayListIterator();
     }

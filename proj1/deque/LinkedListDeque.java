@@ -1,9 +1,8 @@
 package deque;
 
 import java.util.Iterator;
-import edu.princeton.cs.algs4.Stopwatch;
 
-public class LinkedListDeque<T> implements LList<T>{
+public class LinkedListDeque<T> implements Deque<T>{
     public Node sentinel_left;
     public Node sentinel_right;
     public int size;
