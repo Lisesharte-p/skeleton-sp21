@@ -1,34 +1,43 @@
 package deque;
 
 import java.util.Comparator;
+import java.util.Iterator;
 
 public class MaxArrayDeque<T> extends ArrayDeque<T> {
     private Comparator<T> comparator;
-    public MaxArrayDeque(Comparator<T> c){
+
+    public MaxArrayDeque(Comparator<T> c) {
         super();
-        this.comparator=c;
-
+        this.comparator = c;
     }
-    public T max(){
-        T max_ele=null;
-        for(T x:this){
-            if(this.comparator.compare(max_ele,x)<0){
-                max_ele=x;
+
+    public T max() {
+        if (isEmpty()) { // 处理空队列情况
+            return null;
+        }
+        T maxEle = null;
+        Iterator<T> it = iterator(); // 显式获取迭代器
+        while (it.hasNext()) {
+            T x = it.next();
+            if (maxEle == null || comparator.compare(maxEle, x) < 0) {
+                maxEle = x;
             }
         }
-        return max_ele;
+        return maxEle;
     }
 
-
-
-    public T max(Comparator<T> c){
-        T max_ele=null;
-        for(T x:this){
-            if(c.compare(max_ele,x)<0){
-                max_ele=x;
+    public T max(Comparator<T> c) {
+        if (isEmpty()) { // 处理空队列情况
+            return null;
+        }
+        T maxEle = null;
+        Iterator<T> it = iterator(); // 显式获取迭代器
+        while (it.hasNext()) {
+            T x = it.next();
+            if (maxEle == null || c.compare(maxEle, x) < 0) {
+                maxEle = x;
             }
         }
-        return max_ele;
+        return maxEle;
     }
-
 }

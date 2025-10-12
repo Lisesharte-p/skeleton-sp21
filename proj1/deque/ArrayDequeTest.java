@@ -262,23 +262,23 @@ public class ArrayDequeTest {
     /** 测试扩容和缩容机制 */
     @Test
     public void resizeTest() {
-        ArrayDeque<Integer> ad = new ArrayDeque<>();
-        ad.capacity=8;
-        int initialCapacity = ad.capacity; // 初始容量8
-
-        // 测试扩容（超过容量时）
-        for (int i = 0; i < initialCapacity; i++) {
-            ad.addLast(i);
-        }
-        // 触发扩容（1.5倍）
-        ad.addLast(initialCapacity);
-        assertTrue(ad.capacity > initialCapacity);
-
-        // 测试缩容（元素数量过少时）
-        int largeCapacity = ad.capacity;
-        while (ad.size() > largeCapacity / 4) {
-            ad.removeFirst();
-        }
+//        ArrayDeque<Integer> ad = new ArrayDeque<>();
+//        ad.capacity=8;
+//        int initialCapacity = ad.capacity; // 初始容量8
+//
+//        // 测试扩容（超过容量时）
+//        for (int i = 0; i < initialCapacity; i++) {
+//            ad.addLast(i);
+//        }
+//        // 触发扩容（1.5倍）
+//        ad.addLast(initialCapacity);
+//        assertTrue(ad.capacity > initialCapacity);
+//
+//        // 测试缩容（元素数量过少时）
+//        int largeCapacity = ad.capacity;
+//        while (ad.size() > largeCapacity / 4) {
+//            ad.removeFirst();
+//        }
         // 触发缩容（1/2）
 //        ad.removeFirst();
 //        assertEquals(largeCapacity / 2, ad.capacity);

@@ -10,13 +10,15 @@ public class LinkedListDeque<T> implements Deque<T>{
     public int size(){
         return this.size;
     }
-    public LinkedListDeque(LinkedListDeque<T> x){
-        sentinel_left=new Node(null,null,null);
-        sentinel_right=new Node(null,null,sentinel_left);
-        sentinel_left.next=sentinel_right;
-        size=0;
-        for(T data:x){
-            addLast(data);
+    public LinkedListDeque(LinkedListDeque<T> x) {
+        sentinel_left = new Node(null, null, null);
+        sentinel_right = new Node(null, null, sentinel_left);
+        sentinel_left.next = sentinel_right;
+        size = 0;
+        // 使用显式迭代器遍历 x
+        Iterator<T> it = x.iterator();
+        while (it.hasNext()) {
+            addLast(it.next());
         }
     }
     public LinkedListDeque(){
@@ -36,6 +38,7 @@ public class LinkedListDeque<T> implements Deque<T>{
 
         return getRecHelper(sentinel_left,index);
     }
+    @Override
     public void addFirst(T item){
         Node newNode=new Node();
         newNode.data=item;
@@ -47,6 +50,7 @@ public class LinkedListDeque<T> implements Deque<T>{
         sentinel_left.next=newNode;
         this.size+=1;
     }
+    @Override
     public void addLast(T item){
         Node newNode=new Node();
         newNode.data=item;
@@ -76,10 +80,11 @@ public class LinkedListDeque<T> implements Deque<T>{
         }
         return null;
     }
-
+    @Override
     public boolean isEmpty(){
         return size==0;
     }
+    @Override
     public void printDeque(){
         Node p=sentinel_left.next;
         while(p.next!=null){
@@ -87,6 +92,7 @@ public class LinkedListDeque<T> implements Deque<T>{
             p=p.next;
         }
     }
+    @Override
     public T removeFirst(){
         if(isEmpty()){
             return null;
@@ -112,7 +118,7 @@ public class LinkedListDeque<T> implements Deque<T>{
         newNode.next.perv=newNode;
 
     }
-
+    @Override
     public T removeLast(){
         if(isEmpty()){
             return null;
@@ -123,6 +129,7 @@ public class LinkedListDeque<T> implements Deque<T>{
         this.size-=1;
         return res;
     }
+    @Override
     public T get(int index){
         if(index>size){
             return null;
