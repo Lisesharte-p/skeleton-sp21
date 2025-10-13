@@ -5,7 +5,7 @@ import edu.princeton.cs.algs4.StdDraw;
 
 public class GH {
     public static final double CONCORD_A = 440.0;
-    public static String keyboard = "q2we4r5ty7u8i9op-[=zxdcfvgbnjmk,.;/' ";
+    private static String keyboard = "q2we4r5ty7u8i9op-[=zxdcfvgbnjmk,.;/' ";
     private static GuitarString[] gs = new GuitarString[37];
 
     public static void main(String[] args) {

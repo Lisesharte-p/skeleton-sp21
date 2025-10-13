@@ -260,25 +260,25 @@ public class LinkedListDequeTest {
     }
 
     /** 测试复制构造函数（如果实现了） */
-    @Test
-    public void copyConstructorTest() {
-        LinkedListDeque<String> original = new LinkedListDeque<>();
-        original.addFirst("hello");
-        original.addLast("world");
-
-        // 复制构造
-        LinkedListDeque<String> copy = new LinkedListDeque<>(original);
-
-        // 验证内容相同
-        assertTrue(original.equals(copy));
-
-        // 验证修改原队列不影响复制队列
-        original.addFirst("test");
-        assertFalse(original.equals(copy));
-        assertEquals(3, original.size());
-        assertEquals(2, copy.size());
-        assertEquals("hello", copy.get(0));
-    }
+//    @Test
+//    public void copyConstructorTest() {
+//        LinkedListDeque<String> original = new LinkedListDeque<>();
+//        original.addFirst("hello");
+//        original.addLast("world");
+//
+//        // 复制构造
+//        LinkedListDeque<String> copy = new LinkedListDeque<>(original);
+//
+//        // 验证内容相同
+//        assertTrue(original.equals(copy));
+//
+//        // 验证修改原队列不影响复制队列
+//        original.addFirst("test");
+//        assertFalse(original.equals(copy));
+//        assertEquals(3, original.size());
+//        assertEquals(2, copy.size());
+//        assertEquals("hello", copy.get(0));
+//    }
 
     /** 测试size为1时的各种操作 */
     @Test

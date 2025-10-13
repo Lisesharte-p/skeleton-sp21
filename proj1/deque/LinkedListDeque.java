@@ -9,17 +9,17 @@ public class LinkedListDeque<T> implements deque.Deque<T> {
     private Node sentinelRight;
     private int size;
 
-    public LinkedListDeque(LinkedListDeque<T> x) {
-        sentinelLeft = new Node(null, null, null);
-        sentinelRight = new Node(null, null, sentinelLeft);
-        sentinelLeft.next = sentinelRight;
-        size = 0;
-        // 使用显式迭代器遍历 x
-        Iterator<T> it = x.iterator();
-        while (it.hasNext()) {
-            addLast(it.next());
-        }
-    }
+//    public LinkedListDeque(LinkedListDeque<T> x) {
+//        sentinelLeft = new Node(null, null, null);
+//        sentinelRight = new Node(null, null, sentinelLeft);
+//        sentinelLeft.next = sentinelRight;
+//        size = 0;
+//        // 使用显式迭代器遍历 x
+//        Iterator<T> it = x.iterator();
+//        while (it.hasNext()) {
+//            addLast(it.next());
+//        }
+//    }
 
     public LinkedListDeque() {
         sentinelLeft = new Node(null, null, null);
@@ -185,7 +185,7 @@ public class LinkedListDeque<T> implements deque.Deque<T> {
     private class LLDequeIterator implements Iterator<T> {
         private int nowPos;
 
-        public LLDequeIterator() {
+        LLDequeIterator() {
             nowPos = 0;
         }
 
@@ -202,17 +202,22 @@ public class LinkedListDeque<T> implements deque.Deque<T> {
         }
     }
 
-    public class Node {
-        public T data;
-        public Node next;
-        public Node perv;
+    private class Node {
+        private T data;
+        private Node next;
+        private Node perv;
 
         public Node(T data, Node next, Node perv) {
             this.data = data;
             this.next = next;
             this.perv = perv;
         }
-
+        public T getData(){
+            return data;
+        }
+        public Node getNext(){
+            return this.next;
+        }
         public Node() {
 
         }

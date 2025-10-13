@@ -204,7 +204,7 @@ public class ArrayDeque<T> implements deque.Deque<T> {
     private class ArrayListIterator implements Iterator<T> {
         private int nowPos;
 
-        public ArrayListIterator() {
+        ArrayListIterator() {
             nowPos = head;
         }
 

@@ -11,7 +11,7 @@ public class MaxDequeTest {
 
     @Test
     public void intTest() {
-        MaxArrayDeque<Integer> md = new MaxArrayDeque<>(new intComparator());
+        MaxArrayDeque<Integer> md = new MaxArrayDeque<>(new IntComparator());
         for (int i = 0; i < 10000; i++) {
             if (i % 2 == 0) {
                 md.addFirst(i);
@@ -24,7 +24,7 @@ public class MaxDequeTest {
 
     }
 
-    public static class intComparator implements Comparator<Integer> {
+    public static class IntComparator implements Comparator<Integer> {
 
         @Override
         public int compare(Integer o1, Integer o2) {
