@@ -184,6 +184,7 @@ public class ArrayDeque<T> implements deque.Deque<T> {
             if (this.size() != ((LinkedListDeque<?>) o).size()) {
                 return false;
             } else {
+
                 for (int i = 0; i < this.size; i++) {
                     if (this.get(i) != ((LinkedListDeque<?>) o).get(i)) {
                         return false;
@@ -198,9 +199,9 @@ public class ArrayDeque<T> implements deque.Deque<T> {
             int headO = ((ArrayDeque<?>) o).head;
             int headThis = this.head;
             for (int i = 0; i < this.size; i++) {
-                if (((ArrayDeque<?>) o).data[(headO + i)
-                        % ((ArrayDeque<?>) o).capacity]
-                        != data[(headThis + i) % capacity]) {
+                if (!((ArrayDeque<?>) o).data[(headO + i)
+                        % ((ArrayDeque<?>) o).capacity].equals(
+                                data[(headThis + i) % capacity])) {
                     return false;
                 }
             }
@@ -219,7 +220,7 @@ public class ArrayDeque<T> implements deque.Deque<T> {
 
         @Override
         public boolean hasNext() {
-            return ((nowPos + 1) % capacity != tail + 1);
+            return ((nowPos + 1) % capacity != tail + 1) && size != 0;
         }
 
         @Override

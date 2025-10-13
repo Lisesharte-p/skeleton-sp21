@@ -168,6 +168,8 @@ public class LinkedListDeque<T> implements deque.Deque<T> {
                     if (pThis.data != pO.data) {
                         return false;
                     }
+                    pThis=pThis.next;
+                    pO=pO.next;
                 }
                 return true;
             }
@@ -217,13 +219,13 @@ public class LinkedListDeque<T> implements deque.Deque<T> {
         private Node next;
         private Node perv;
 
-        public Node(T data, Node next, Node perv) {
+        Node(T data, Node next, Node perv) {
             this.data = data;
             this.next = next;
             this.perv = perv;
         }
 
-        public Node() {
+        Node() {
 
         }
 
