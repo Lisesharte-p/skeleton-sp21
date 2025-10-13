@@ -1,8 +1,10 @@
 package deque;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Iterator;
 
-public class ArrayDeque<T> implements Deque<T> {
+public class ArrayDeque<T> implements deque.Deque<T> {
     private int size;
     private int capacity;
     private T[] data;
@@ -55,19 +57,19 @@ public class ArrayDeque<T> implements Deque<T> {
     }
 
 
-    public T getFirst() {
+//    public T getFirst() {
+//
+//        return data[head];
+//    }
 
-        return data[head];
-    }
 
-
-    public T getLast() {
-        if (tail != 0) {
-            return data[tail - 1];
-        } else {
-            return data[capacity - 1];
-        }
-    }
+//    public T getLast() {
+//        if (tail != 0) {
+//            return data[tail - 1];
+//        } else {
+//            return data[capacity - 1];
+//        }
+//    }
 
     @Override
     public T removeLast() {
@@ -116,21 +118,21 @@ public class ArrayDeque<T> implements Deque<T> {
     }
 
 
-    public void insert(T x, int position) {
-        if (isEmpty()) {
-            data[(head + position) % capacity] = x;
-            size += 1;
-            return;
-        }
-        if (size == capacity - 1) {
-            resize((int) (capacity * 1.5));
-        }
-        System.arraycopy(data, position, data, position + 1, size - position);
-        data[(head + position) % capacity] = x;
-        tail += 1;
-        size += 1;
-
-    }
+//    public void insert(T x, int position) {
+//        if (isEmpty()) {
+//            data[(head + position) % capacity] = x;
+//            size += 1;
+//            return;
+//        }
+//        if (size == capacity - 1) {
+//            resize((int) (capacity * 1.5));
+//        }
+//        System.arraycopy(data, position, data, position + 1, size - position);
+//        data[(head + position) % capacity] = x;
+//        tail += 1;
+//        size += 1;
+//
+//    }
 
     @Override
     public int size() {
@@ -138,8 +140,8 @@ public class ArrayDeque<T> implements Deque<T> {
     }
 
 
-    public void resize(int capacity) {
-        T[] newData = (T[]) new Object[capacity];
+    private void resize(int capacity_i) {
+        T[] newData = (T[]) new Object[capacity_i];
         int length = tail - head;
         if (length < 0) {
             length = this.capacity - head;
@@ -151,7 +153,7 @@ public class ArrayDeque<T> implements Deque<T> {
         head = 0;
         tail = size;
         data = newData;
-        this.capacity = capacity;
+        this.capacity = capacity_i;
     }
 
     @Override
@@ -171,10 +173,9 @@ public class ArrayDeque<T> implements Deque<T> {
             System.out.println(data[nowPos]);
             head = (head + 1) % capacity;
         }
-        return;
     }
 
-    public Iterator<T> iterator() {
+    public @NotNull Iterator<T> iterator() {
         return new ArrayListIterator();
     }
 

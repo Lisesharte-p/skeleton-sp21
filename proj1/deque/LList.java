@@ -1,14 +1,27 @@
 package deque;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Iterator;
+
 public interface LList<item> extends Iterable<item> {
-    public void addFirst(item x);
-    public void addLast(item x);
-    public item getFirst();
-    public item getLast();
-    public item removeLast();
-    public item removeFirst();
-    public void insert(item x,int position);
-    public int size();
-    public boolean equals(Object o);
-    public Iterator<item> iterator();
+     void addFirst(item x);
+
+     void addLast(item x);
+
+     item getFirst();
+
+     item getLast();
+
+     item removeLast();
+
+     item removeFirst();
+
+     void insert(item x, int position);
+
+     int size();
+
+     boolean equals(Object o);
+
+     @NotNull Iterator<item> iterator();
 }

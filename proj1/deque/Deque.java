@@ -1,30 +1,32 @@
 package deque;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Iterator;
 
 public interface Deque<T> extends Iterable<T> {
-    public void addFirst(T item);
+     void addFirst(T item);
 
-    public void addLast(T item);
+     void addLast(T item);
 
-    T getFirst();
+//     T getFirst();
+//
+//     T getLast();
 
-    T getLast();
+     boolean isEmpty();
 
-    public boolean isEmpty();
+     int size();
 
-    public int size();
+     void printDeque();
 
-    public void printDeque();
+     T removeFirst();
 
-    public T removeFirst();
+     //void insert(T x, int position);
 
-    void insert(T x, int position);
+     T removeLast();
 
-    public T removeLast();
-
-    public T get(int index);
+     T get(int index);
 
 
-    public Iterator<T> iterator();
+     @NotNull Iterator<T> iterator();
 }

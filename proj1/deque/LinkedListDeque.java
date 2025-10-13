@@ -1,13 +1,15 @@
 package deque;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Iterator;
 
-public class LinkedListDeque<T> implements Deque<T> {
+public class LinkedListDeque<T> implements deque.Deque<T> {
     public Node sentinel_left;
     public Node sentinel_right;
     public int size;
 
-    public LinkedListDeque(LinkedListDeque<T> x) {
+    public LinkedListDeque(@NotNull LinkedListDeque<T> x) {
         sentinel_left = new Node(null, null, null);
         sentinel_right = new Node(null, null, sentinel_left);
         sentinel_left.next = sentinel_right;
@@ -69,21 +71,21 @@ public class LinkedListDeque<T> implements Deque<T> {
         this.size += 1;
     }
 
-    @Override
-    public T getFirst() {
-        if (!isEmpty()) {
-            return sentinel_left.next.data;
-        }
-        return null;
-    }
 
-    @Override
-    public T getLast() {
-        if (!isEmpty()) {
-            return sentinel_right.perv.data;
-        }
-        return null;
-    }
+//    public T getFirst() {
+//        if (!isEmpty()) {
+//            return sentinel_left.next.data;
+//        }
+//        return null;
+//    }
+//
+//
+//    public T getLast() {
+//        if (!isEmpty()) {
+//            return sentinel_right.perv.data;
+//        }
+//        return null;
+//    }
 
     @Override
     public boolean isEmpty() {
@@ -111,20 +113,20 @@ public class LinkedListDeque<T> implements Deque<T> {
         return res;
     }
 
-    @Override
-    public void insert(T x, int position) {
-        if (position > size || position < 0) {
-            return;
-        }
-        Node p = sentinel_left;
-        for (int i = 0; i < position; i++) {
-            p = p.next;
-        }
-        Node newNode = new Node(x, p.next, p.perv);
-        p.next = newNode;
-        newNode.next.perv = newNode;
 
-    }
+//    public void insert(T x, int position) {
+//        if (position > size || position < 0) {
+//            return;
+//        }
+//        Node p = sentinel_left;
+//        for (int i = 0; i < position; i++) {
+//            p = p.next;
+//        }
+//        Node newNode = new Node(x, p.next, p.perv);
+//        p.next = newNode;
+//        newNode.next.perv = newNode;
+//
+//    }
 
     @Override
     public T removeLast() {
@@ -144,7 +146,7 @@ public class LinkedListDeque<T> implements Deque<T> {
             return null;
         }
         if (index == 0) {
-            return getFirst();
+            return sentinel_left.next.data;
         }
 
         Node p = sentinel_left.next;
@@ -176,7 +178,7 @@ public class LinkedListDeque<T> implements Deque<T> {
     }
 
     @Override
-    public Iterator<T> iterator() {
+    public @NotNull Iterator<T> iterator() {
         return new LLDequeIterator();
     }
 
