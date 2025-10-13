@@ -1,7 +1,6 @@
 package deque;
 
 
-
 import java.util.Iterator;
 
 public class LinkedListDeque<T> implements deque.Deque<T> {
@@ -158,23 +157,34 @@ public class LinkedListDeque<T> implements deque.Deque<T> {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof LinkedListDeque)) {
-            return false;
-        } else {
-            if (((LinkedListDeque<?>) o).size != this.size) {
+
+        if (o instanceof LinkedListDeque) {
+            if (this.size != ((LinkedListDeque<?>) o).size) {
                 return false;
-            }
-            Node p = sentinelLeft;
-            Node pO = (Node) ((LinkedListDeque<?>) o).sentinelLeft;
-            while (p.next != null) {
-                if (p.next.data != pO.next.data) {
-                    return false;
+            } else {
+                Node pThis = this.sentinelLeft;
+                Node pO = (Node) ((LinkedListDeque<?>) o).sentinelLeft;
+                while (pThis.next != null) {
+                    if (pThis.data != pO.data) {
+                        return false;
+                    }
                 }
-                p = p.next;
-                pO = pO.next;
+                return true;
             }
-            return true;
+        } else if (o instanceof ArrayDeque) {
+            if (this.size != ((ArrayDeque<?>) o).size()) {
+                return false;
+            } else {
+                for (int i = 0; i < this.size; i++) {
+                    if (this.get(i) != ((ArrayDeque<?>) o).get(i)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
         }
+        return false;
+
     }
 
 
@@ -212,14 +222,17 @@ public class LinkedListDeque<T> implements deque.Deque<T> {
             this.next = next;
             this.perv = perv;
         }
-        public T getData(){
-            return data;
-        }
-        public Node getNext(){
-            return this.next;
-        }
+
         public Node() {
 
+        }
+
+        public T getData() {
+            return data;
+        }
+
+        public Node getNext() {
+            return this.next;
         }
     }
 }

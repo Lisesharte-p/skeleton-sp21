@@ -1,7 +1,6 @@
 package deque;
 
 
-
 import java.util.Iterator;
 
 public class ArrayDeque<T> implements deque.Deque<T> {
@@ -181,9 +180,18 @@ public class ArrayDeque<T> implements deque.Deque<T> {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof ArrayDeque)) {
-            return false;
-        } else {
+        if (o instanceof LinkedListDeque) {
+            if (this.size() != ((LinkedListDeque<?>) o).size()) {
+                return false;
+            } else {
+                for (int i = 0; i < this.size; i++) {
+                    if (this.get(i) != ((LinkedListDeque<?>) o).get(i)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        } else if (o instanceof ArrayDeque) {
             if (((ArrayDeque<?>) o).size != this.size) {
                 return false;
             }
@@ -199,6 +207,7 @@ public class ArrayDeque<T> implements deque.Deque<T> {
             return true;
 
         }
+        return false;
     }
 
     private class ArrayListIterator implements Iterator<T> {
