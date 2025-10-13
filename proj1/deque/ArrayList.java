@@ -13,21 +13,21 @@ public interface ArrayList<item> extends Iterable<item> {
 
     item removeLast();
 
-     item removeFirst();
+    item removeFirst();
 
-     void insert(item x, int position);
+    void insert(item x, int position);
 
-     int size();
+    int size();
 
-     boolean equals(Object o);
+    boolean equals(Object o);
 
-     void resize(int capacity);
+    void resize(int capacity);
 
-     boolean isEmpty();
+    boolean isEmpty();
 
-     item get(int index);
+    item get(int index);
 
-     void printDeque();
+    void printDeque();
 
-     Iterator<item> iterator();
+    Iterator<item> iterator();
 }

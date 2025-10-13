@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 public class MaxDequeTest {
 
     @Test
-    public void IntTest() {
+    public void intTest() {
         MaxArrayDeque<Integer> md = new MaxArrayDeque<>(new intComparator());
         for (int i = 0; i < 10000; i++) {
             if (i % 2 == 0) {

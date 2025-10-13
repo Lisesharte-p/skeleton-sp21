@@ -36,11 +36,11 @@ public class GuitarString {
         //       other. This does not mean that you need to check that the numbers
         //       are different from each other. It means you should repeatedly call
         //       Math.random() - 0.5 to generate new random numbers for each array index.
-        int Capacity = buffer.size();
+        int capacity = buffer.size();
         while (!buffer.isEmpty()) {
             buffer.removeFirst();
         }
-        for (int i = 0; i < Capacity; i++) {
+        for (int i = 0; i < capacity; i++) {
             buffer.addLast(Math.random() - 0.5);
         }
     }

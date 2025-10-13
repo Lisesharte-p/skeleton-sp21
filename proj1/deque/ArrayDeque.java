@@ -140,8 +140,8 @@ public class ArrayDeque<T> implements deque.Deque<T> {
     }
 
 
-    private void resize(int capacity_i) {
-        T[] newData = (T[]) new Object[capacity_i];
+    private void resize(int capacityI) {
+        T[] newData = (T[]) new Object[capacityI];
         int length = tail - head;
         if (length < 0) {
             length = this.capacity - head;
@@ -153,7 +153,7 @@ public class ArrayDeque<T> implements deque.Deque<T> {
         head = 0;
         tail = size;
         data = newData;
-        this.capacity = capacity_i;
+        this.capacity = capacityI;
     }
 
     @Override
@@ -187,10 +187,12 @@ public class ArrayDeque<T> implements deque.Deque<T> {
             if (((ArrayDeque<?>) o).size != this.size) {
                 return false;
             }
-            int head_o = ((ArrayDeque<?>) o).head;
-            int head_this = this.head;
+            int headO = ((ArrayDeque<?>) o).head;
+            int headThis = this.head;
             for (int i = 0; i < this.size; i++) {
-                if (((ArrayDeque<?>) o).data[(head_o + i) % ((ArrayDeque<?>) o).capacity] != data[(head_this + i) % capacity]) {
+                if (((ArrayDeque<?>) o).data[(headO + i)
+                        % ((ArrayDeque<?>) o).capacity]
+                        != data[(headThis + i) % capacity]) {
                     return false;
                 }
             }

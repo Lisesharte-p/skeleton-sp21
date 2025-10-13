@@ -10,7 +10,8 @@ public class GH {
 
     public static void main(String[] args) {
         for (int i = 0; i < 37; i++) {
-            GuitarString newgs = new GuitarString(CONCORD_A * Math.pow(2, (double) (i - 24) / 12.0));
+            GuitarString newgs = new GuitarString(CONCORD_A
+                    * Math.pow(2, (double) (i - 24) / 12.0));
             gs[i] = newgs;
         }
 

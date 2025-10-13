@@ -5,28 +5,28 @@ package deque;
 import java.util.Iterator;
 
 public interface Deque<T> extends Iterable<T> {
-     void addFirst(T item);
+    void addFirst(T item);
 
-     void addLast(T item);
+    void addLast(T item);
 
-//     T getFirst();
-//
-//     T getLast();
+    //     T getFirst();
+    //
+    //     T getLast();
 
-     boolean isEmpty();
+    boolean isEmpty();
 
-     int size();
+    int size();
 
-     void printDeque();
+    void printDeque();
 
-     T removeFirst();
+    T removeFirst();
 
-     //void insert(T x, int position);
+    //void insert(T x, int position);
 
-     T removeLast();
+    T removeLast();
 
-     T get(int index);
+    T get(int index);
 
 
-     Iterator<T> iterator();
+    Iterator<T> iterator();
 }
