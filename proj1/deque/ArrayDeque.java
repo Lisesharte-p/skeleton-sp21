@@ -1,6 +1,6 @@
 package deque;
 
-import org.jetbrains.annotations.NotNull;
+
 
 import java.util.Iterator;
 
@@ -175,7 +175,7 @@ public class ArrayDeque<T> implements deque.Deque<T> {
         }
     }
 
-    public @NotNull Iterator<T> iterator() {
+    public Iterator<T> iterator() {
         return new ArrayListIterator();
     }
 

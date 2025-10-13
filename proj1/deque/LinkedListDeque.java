@@ -1,6 +1,6 @@
 package deque;
 
-import org.jetbrains.annotations.NotNull;
+
 
 import java.util.Iterator;
 
@@ -9,7 +9,7 @@ public class LinkedListDeque<T> implements deque.Deque<T> {
     public Node sentinel_right;
     public int size;
 
-    public LinkedListDeque(@NotNull LinkedListDeque<T> x) {
+    public LinkedListDeque(LinkedListDeque<T> x) {
         sentinel_left = new Node(null, null, null);
         sentinel_right = new Node(null, null, sentinel_left);
         sentinel_left.next = sentinel_right;
@@ -178,7 +178,7 @@ public class LinkedListDeque<T> implements deque.Deque<T> {
     }
 
     @Override
-    public @NotNull Iterator<T> iterator() {
+    public Iterator<T> iterator() {
         return new LLDequeIterator();
     }
 

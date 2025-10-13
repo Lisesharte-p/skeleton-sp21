@@ -1,6 +1,6 @@
 package deque;
 
-import org.jetbrains.annotations.NotNull;
+
 
 import java.util.Iterator;
 
@@ -28,5 +28,5 @@ public interface Deque<T> extends Iterable<T> {
      T get(int index);
 
 
-     @NotNull Iterator<T> iterator();
+     Iterator<T> iterator();
 }
