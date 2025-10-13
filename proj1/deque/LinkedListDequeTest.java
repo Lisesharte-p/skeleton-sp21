@@ -2,12 +2,15 @@ package deque;
 
 import org.junit.Test;
 
+
 import java.util.Iterator;
 
 import static org.junit.Assert.*;
 
 
-/** Performs some basic linked list tests. */
+/**
+ * Performs some basic linked list tests.
+ */
 public class LinkedListDequeTest {
 
     @Test
@@ -21,22 +24,22 @@ public class LinkedListDequeTest {
 
         LinkedListDeque<String> lld1 = new LinkedListDeque<String>();
 
-		assertTrue("A newly initialized LLDeque should be empty", lld1.isEmpty());
-		lld1.addFirst("front");
+        assertTrue("A newly initialized LLDeque should be empty", lld1.isEmpty());
+        lld1.addFirst("front");
 
-		// The && operator is the same as "and" in Python.
-		// It's a binary operator that returns true if both arguments true, and false otherwise.
+        // The && operator is the same as "and" in Python.
+        // It's a binary operator that returns true if both arguments true, and false otherwise.
         assertEquals(1, lld1.size());
         assertFalse("lld1 should now contain 1 item", lld1.isEmpty());
 
-		lld1.addLast("middle");
-		assertEquals(2, lld1.size());
+        lld1.addLast("middle");
+        assertEquals(2, lld1.size());
 
-		lld1.addLast("back");
-		assertEquals(3, lld1.size());
+        lld1.addLast("back");
+        assertEquals(3, lld1.size());
 
-		System.out.println("Printing out deque: ");
-		lld1.printDeque();
+        System.out.println("Printing out deque: ");
+        lld1.printDeque();
 
     }
 
@@ -47,17 +50,17 @@ public class LinkedListDequeTest {
         System.out.println("Make sure to uncomment the lines below (and delete this print statement).");
 
         LinkedListDeque<Integer> lld1 = new LinkedListDeque<Integer>();
-		// should be empty
-		assertTrue("lld1 should be empty upon initialization", lld1.isEmpty());
+        // should be empty
+        assertTrue("lld1 should be empty upon initialization", lld1.isEmpty());
 
-		lld1.addFirst(10);
-		// should not be empty
+        lld1.addFirst(10);
+        // should not be empty
 
-		assertFalse("lld1 should contain 1 item", lld1.isEmpty());
+        assertFalse("lld1 should contain 1 item", lld1.isEmpty());
 
-		lld1.removeFirst();
-		// should be empty
-		assertTrue("lld1 should be empty after removal", lld1.isEmpty());
+        lld1.removeFirst();
+        // should be empty
+        assertTrue("lld1 should be empty after removal", lld1.isEmpty());
 
     }
 
@@ -89,8 +92,8 @@ public class LinkedListDequeTest {
     public void multipleParamTest() {
 
 
-        LinkedListDeque<String>  lld1 = new LinkedListDeque<String>();
-        LinkedListDeque<Float>  lld2 = new LinkedListDeque<Float>();
+        LinkedListDeque<String> lld1 = new LinkedListDeque<String>();
+        LinkedListDeque<Float> lld2 = new LinkedListDeque<Float>();
         LinkedListDeque<Boolean> lld3 = new LinkedListDeque<Boolean>();
 
         lld1.addFirst("string");
@@ -101,7 +104,7 @@ public class LinkedListDequeTest {
         float d = lld2.removeFirst();
         boolean b = lld3.removeFirst();
         assertEquals("string", s);
-        assertEquals(3.14159F,d,0.1);
+        assertEquals(3.14159F, d, 0.1);
         assertTrue(b);
     }
 
@@ -142,6 +145,7 @@ public class LinkedListDequeTest {
 
 
     }
+
     @Test
     public void getTest() {
         LinkedListDeque<Integer> deque = new LinkedListDeque<>();
@@ -171,7 +175,9 @@ public class LinkedListDequeTest {
         assertNull("getRecursive(3)应返回null", deque.getRecursive(3));
     }
 
-    /** 测试混合添加和删除操作的顺序正确性 */
+    /**
+     * 测试混合添加和删除操作的顺序正确性
+     */
     @Test
     public void mixedAddRemoveTest() {
         LinkedListDeque<String> deque = new LinkedListDeque<>();
@@ -198,7 +204,9 @@ public class LinkedListDequeTest {
         assertTrue(deque.isEmpty());
     }
 
-    /** 测试迭代器功能（如果实现了Iterable） */
+    /**
+     * 测试迭代器功能（如果实现了Iterable）
+     */
     @Test
     public void iteratorTest() {
         LinkedListDeque<Integer> deque = new LinkedListDeque<>();
@@ -222,19 +230,48 @@ public class LinkedListDequeTest {
         }
     }
 
-    /** 测试equals方法（如果实现了） */
+    /**
+     * 测试equals方法（如果实现了）
+     */
     @Test
     public void equalsTest() {
         LinkedListDeque<Integer> d1 = new LinkedListDeque<>();
         LinkedListDeque<Integer> d2 = new LinkedListDeque<>();
+        ArrayDeque<Integer> a1 = new ArrayDeque<>();
+        // 空队列相等
+        System.out.println("d1 size: " + d1.size());
+        System.out.println("a1 size: " + a1.size());
+        System.out.println("d1 isEmpty: " + d1.isEmpty());
+        System.out.println("a1 isEmpty: " + a1.isEmpty());
+        System.out.println("d1 size: " + d1.size());
+        System.out.println("a1 size: " + a1.size());
+        System.out.println("d1 isEmpty: " + d1.isEmpty());
+        System.out.println("a1 isEmpty: " + a1.isEmpty());
+
+        // 检查 instanceof
+        System.out.println("a1 instanceof Deque: " + (a1 instanceof Deque));
+        System.out.println("d1 instanceof Deque: " + (d1 instanceof Deque));
+
+        // 检查迭代器
+        Iterator<Integer> d1It = d1.iterator();
+        Iterator<Integer> a1It = a1.iterator();
+        System.out.println("d1 iterator hasNext: " + d1It.hasNext());
+        System.out.println("a1 iterator hasNext: " + a1It.hasNext());
 
         // 空队列相等
+        boolean result = d1.equals(a1);
+        System.out.println("d1.equals(a1) result: " + result);
+        assertTrue("Empty LinkedListDeque should equal empty ArrayDeque", result);
+        // 空队列相等
+        assertTrue("Empty LinkedListDeque should equal empty ArrayDeque", d1.equals(a1));
         assertTrue(d1.equals(d2));
-
+        assertTrue(d1.equals(a1));
         // 单元素相等
         d1.addFirst(1);
         d2.addFirst(1);
+        a1.addFirst(1);
         assertTrue(d1.equals(d2));
+        assertTrue(d1.equals(a1));
 
         // 元素不同
         d2.removeFirst();
@@ -280,7 +317,9 @@ public class LinkedListDequeTest {
 //        assertEquals("hello", copy.get(0));
 //    }
 
-    /** 测试size为1时的各种操作 */
+    /**
+     * 测试size为1时的各种操作
+     */
     @Test
     public void singleElementTest() {
         LinkedListDeque<Double> deque = new LinkedListDeque<>();
@@ -298,7 +337,9 @@ public class LinkedListDequeTest {
         assertTrue(deque.isEmpty());
     }
 
-    /** 测试连续多次添加删除后的稳定性 */
+    /**
+     * 测试连续多次添加删除后的稳定性
+     */
     @Test
     public void stressTest() {
         LinkedListDeque<Integer> deque = new LinkedListDeque<>();
@@ -318,7 +359,7 @@ public class LinkedListDequeTest {
         for (int i = 0; i < n / 2; i++) {
             int expectedFirst = n - 2 - 2 * i; // 推导规律：添加顺序决定删除顺序
             assertEquals((Integer) expectedFirst, deque.removeFirst());
-            int expectedLast = n-2*i-1;
+            int expectedLast = n - 2 * i - 1;
             assertEquals((Integer) expectedLast, deque.removeLast());
         }
         assertTrue(deque.isEmpty());
