@@ -62,10 +62,14 @@ public class CapersRepository {
      */
     public static void writeStory(String text) {
         String thisFile = readContentsAsString(join(System.getProperty("user.dir"), ".capers", "story"));
-        File f=join(System.getProperty("user.dir"), ".capers", "story");
-        thisFile+="\n";
-        thisFile+=text;
-        writeContents(f,thisFile);
+
+        File f = join(System.getProperty("user.dir"), ".capers", "story");
+        if (!thisFile.isEmpty()) {
+            thisFile += "\n";
+        }
+
+        thisFile += text;
+        writeContents(f, thisFile);
     }
 
     /**
@@ -74,7 +78,9 @@ public class CapersRepository {
      * Also prints out the dog's information using toString().
      */
     public static void makeDog(String name, String breed, int age) {
-        // TODO
+        Dog newDog = new Dog(name, breed, age);
+        newDog.saveDog();
+        System.out.println(newDog);
     }
 
     /**
@@ -85,6 +91,8 @@ public class CapersRepository {
      * @param name String name of the Dog whose birthday we're celebrating.
      */
     public static void celebrateBirthday(String name) {
-        // TODO
+        Dog thisDog = Dog.fromFile(name);
+        thisDog.haveBirthday();
+        thisDog.saveDog();
     }
 }
