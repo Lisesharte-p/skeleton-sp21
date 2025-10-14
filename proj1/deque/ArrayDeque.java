@@ -168,10 +168,14 @@ public class ArrayDeque<T> implements deque.Deque<T> {
     @Override
     public void printDeque() {
         int nowPos = head;
-        while (head != tail - 1) {
-            System.out.println(data[nowPos]);
-            head = (head + 1) % capacity;
+        int elementsPrinted = 0;
+
+        while (elementsPrinted < size) {
+            System.out.print(data[nowPos] + " ");
+            nowPos = (nowPos + 1) % capacity;
+            elementsPrinted++;
         }
+        System.out.println();
     }
 
     public Iterator<T> iterator() {
@@ -180,52 +184,54 @@ public class ArrayDeque<T> implements deque.Deque<T> {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof LinkedListDeque) {
-            if (this.size() != ((LinkedListDeque<?>) o).size()) {
-                return false;
-            } else {
-                for (int i = 0; i < this.size; i++) {
-                    if (this.get(i) != ((LinkedListDeque<?>) o).get(i)) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        } else if (o instanceof ArrayDeque) {
-            if (((ArrayDeque<?>) o).size != this.size) {
-                return false;
-            }
-            int headO = ((ArrayDeque<?>) o).head;
-            int headThis = this.head;
-            for (int i = 0; i < this.size; i++) {
-                if (((ArrayDeque<?>) o).data[(headO + i)
-                        % ((ArrayDeque<?>) o).capacity]
-                        != data[(headThis + i) % capacity]) {
-                    return false;
-                }
-            }
-            return true;
+        if (this == o) return true;
+        if (!(o instanceof Deque)) return false;
+        Iterable<?> other = (Iterable<?>) o;
+        if (this.size() != ((Deque<?>) o).size()) return false;
 
+
+        Iterator<T> thisIt = this.iterator();
+        Iterator<?> otherIt = other.iterator();
+        while (thisIt.hasNext()) {
+            T thisVal = thisIt.next();
+            Object otherVal = otherIt.next();
+            if (!objectsEqual(thisVal, otherVal)) {
+                return false;
+            }
         }
-        return false;
+        return true;
+    }
+
+
+    private boolean objectsEqual(Object a, Object b) {
+
+        if (a == b) return true;
+        if (a == null || b == null) return false;
+        return a.equals(b);
     }
 
     private class ArrayListIterator implements Iterator<T> {
-        private int nowPos;
+        private int currentIndex;
+        private int count;
 
         ArrayListIterator() {
-            nowPos = head;
+            currentIndex = head;
+            count = 0;
         }
 
         @Override
         public boolean hasNext() {
-            return ((nowPos + 1) % capacity != tail + 1);
+            return count < size;
         }
 
         @Override
         public T next() {
-            T returnItem = data[nowPos];
-            nowPos = (nowPos + 1) % capacity;
+            if (!hasNext()) {
+                throw new java.util.NoSuchElementException();
+            }
+            T returnItem = data[currentIndex];
+            currentIndex = (currentIndex + 1) % capacity;
+            count++;
             return returnItem;
         }
     }

@@ -155,36 +155,33 @@ public class LinkedListDeque<T> implements deque.Deque<T> {
         return p.data;
     }
 
+
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Deque)) return false;
+        Iterable<?> other = (Iterable<?>) o;
+        if (this.size() != ((Deque<?>) o).size()) return false;
 
-        if (o instanceof LinkedListDeque) {
-            if (this.size != ((LinkedListDeque<?>) o).size) {
+
+        Iterator<T> thisIt = this.iterator();
+        Iterator<?> otherIt = other.iterator();
+        while (thisIt.hasNext()) {
+            T thisVal = thisIt.next();
+            Object otherVal = otherIt.next();
+
+            if (!objectsEqual(thisVal, otherVal)) {
                 return false;
-            } else {
-                Node pThis = this.sentinelLeft;
-                Node pO = (Node) ((LinkedListDeque<?>) o).sentinelLeft;
-                while (pThis.next != null) {
-                    if (pThis.data != pO.data) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        } else if (o instanceof ArrayDeque) {
-            if (this.size != ((ArrayDeque<?>) o).size()) {
-                return false;
-            } else {
-                for (int i = 0; i < this.size; i++) {
-                    if (this.get(i) != ((ArrayDeque<?>) o).get(i)) {
-                        return false;
-                    }
-                }
-                return true;
             }
         }
-        return false;
+        return true;
+    }
 
+
+    private boolean objectsEqual(Object a, Object b) {
+        if (a == b) return true;
+        if (a == null || b == null) return false;
+        return a.equals(b);
     }
 
 
@@ -217,13 +214,13 @@ public class LinkedListDeque<T> implements deque.Deque<T> {
         private Node next;
         private Node perv;
 
-        public Node(T data, Node next, Node perv) {
+        Node(T data, Node next, Node perv) {
             this.data = data;
             this.next = next;
             this.perv = perv;
         }
 
-        public Node() {
+        Node() {
 
         }
 
