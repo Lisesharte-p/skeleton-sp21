@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,9 +29,11 @@ public class Repository {
     public static final File CWD = new File(System.getProperty("user.dir"));
     /** The .gitlet directory. */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
-    public static Commit[] HEAD;
+    public static LinkedListDeque<Commit> HEAD;
     public static Commit master;
     public static final File STAGING_AREA=join(GITLET_DIR,"stagingArea");
+    public static LinkedListDeque<String> tracked;
+
     /* TODO: fill in the rest of this class. */
 
 
@@ -42,8 +45,13 @@ public class Repository {
 
         newRepo.mkdir();
         Commit initCommit=new Commit("initial commit",null);
+
         STAGING_AREA.mkdir();
         addCommit(initCommit);
+        HEAD=new LinkedListDeque<>();
+        master=initCommit;
+        HEAD.addLast(initCommit);
+        tracked=new LinkedListDeque<String>();
     }
     public static void addCommit(Commit newCommit){
         File f=join(GITLET_DIR, newCommit.getHashMetadata());
@@ -51,16 +59,25 @@ public class Repository {
         f.mkdir();
         for(File fs:newCommit.files){
             try {
+                tracked.addLast(fs.getName());
                 String createFile=readContentsAsString(fs);
-
+                File newFile=join(f,fs.getName());
+                newFile.createNewFile();
+                writeContents(newFile,createFile);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
+        newCommit.tracked=tracked;
+        HEAD.remove(HEAD.getIndex(master));
+        HEAD.addLast(newCommit);
+        master=newCommit;
+
         File[] fs=STAGING_AREA.listFiles();
         for(File files:fs){
             files.delete();
         }
+
 
     }
     public static void makeCommit(String message){
@@ -69,7 +86,8 @@ public class Repository {
             System.exit(0);
         }
         Commit thisCommit=new Commit(message,STAGING_AREA.listFiles());
-
+        thisCommit.pervCommit=master;
+        addCommit(thisCommit);
     }
 
 }

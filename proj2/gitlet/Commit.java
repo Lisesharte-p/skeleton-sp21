@@ -32,15 +32,19 @@ public class Commit implements Serializable {
     private String hashMetadata;
     private LinkedListDeque<String> fileHash;
     private String timeStamp;
-    private Commit pervCommit;
+    public Commit pervCommit;
+    public LinkedListDeque<String> tracked;
     /* TODO: fill in the rest of this class. */
 
     Commit(String message, File[] files) {
         this.message = message;
         this.files=new LinkedListDeque<File>();
-        for(File file:files)
+        fileHash=new LinkedListDeque<>();
+        if(files!=null)
         {
-            this.files.addLast(file);
+            for (File file : files) {
+                this.files.addLast(file);
+            }
         }
         this.timeStamp = String.valueOf(new Date());
         this.hashMetadata = sha1(message, timeStamp);

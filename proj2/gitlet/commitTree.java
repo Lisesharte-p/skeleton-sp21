@@ -4,7 +4,5 @@ public class commitTree {
 
 
 
-    public static class node{
 
-    }
 }
