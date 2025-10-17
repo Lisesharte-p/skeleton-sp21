@@ -4,9 +4,10 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 
-import static gitlet.Utils.sha1;
+import static gitlet.Utils.*;
 
 /**
  * Represents a gitlet commit object.
@@ -18,47 +19,49 @@ import static gitlet.Utils.sha1;
 public class Commit implements Serializable {
     /**
      * TODO: add instance variables here.
-     *
-     * List all instance variables of the Commit class here with a useful
+     * <p>
+     * ArrayList all instance variables of the Commit class here with a useful
      * comment above them describing what that variable represents and how that
      * variable is used. We've provided one example for `message`.
      */
 
-    public File[] files;
-    public LinkedListDeque<Commit> pervCommit;
-    public LinkedListDeque<String> tracked;
+    public ArrayList<String> files;
+    public ArrayList<String> pervCommit;
+    public ArrayList<String> tracked;
+    public Date date;
+    public String hashMetadata;
+    public String timeStamp;
     /**
      * The message of this Commit.
      */
     private String message;
-    public Date date;
-    private String hashMetadata;
-    private LinkedListDeque<String> fileHash;
-    private String timeStamp;
+    private ArrayList<String> fileHash;
     /* TODO: fill in the rest of this class. */
 
-    Commit(String message, File[] files) {
+    Commit(String message, ArrayList<String> files) {
         this.message = message;
-        this.date=new Date();
-        fileHash = new LinkedListDeque<>();
-        this.files = files;
+        this.date = new Date();
+        fileHash = new ArrayList<>();
+
         this.timeStamp = String.valueOf(new Date());
-        if(files!=null)
-        {
-            this.hashMetadata = sha1(message, timeStamp, files);
+        if (files != null) {
+            for (String f : files) {
+                this.files.add(f);
+                this.fileHash.add(sha1(new File(f)));
+            }
+
+
         }
-        else{
-            this.hashMetadata=sha1(message,timeStamp);
-        }
-        updateHash();
+
+
+        this.hashMetadata = sha1(message, timeStamp);
+
+
     }
 
-    public void updateHash() {
-        if (this.files != null) {
-            for (File file : this.files) {
-                this.fileHash.addLast(sha1(file));
-            }
-        }
+    public Commit getPervCommit() {
+        File perv = join(Repository.GITLET_DIR, pervCommit.get(0));
+        return readObject(perv, Commit.class);
     }
 
 

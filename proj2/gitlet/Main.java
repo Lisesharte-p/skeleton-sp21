@@ -1,11 +1,6 @@
 package gitlet;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Date;
-import java.util.Formatter;
-
-import static gitlet.Utils.*;
 
 
 /**
@@ -24,48 +19,24 @@ public class Main {
 
         if (args.length == 0) return;
         String firstArg = args[0];
-
+        Repository.readConfig();
         switch (firstArg) {
             case "init":
                 if (args.length != 1) {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
-                Repository.init("initial commit");
+                Repository.initCommit("initial commit");
                 break;
             case "add":
                 if (args.length != 2) {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
-                File f = new File(args[1]);
-                if (f.exists()) {
-                    if(!Repository.currentMasterTracked.found(args[1])){
-                        Repository.currentMasterTracked.addLast(args[1]);
-                    }
-                    String buffer=readContentsAsString(f);
-                    File addFile = join(Repository.STAGING_AREA, args[1]);
-                    String currentMasterHash = sha1(join(Repository.GITLET_DIR,Repository.master.getHashMetadata(),args[1]));
-                    if (currentMasterHash.equals(sha1(f))) {
-                        System.exit(0);
-                    }
-                    if (addFile.exists()) {
-                        addFile.delete();
-                    } else {
-                        try {
-                            addFile.createNewFile();
-                            writeContents(addFile,buffer);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                } else {
-                    System.out.println("File does not exist.");
-                    System.exit(0);
-                }
+                Repository.addFile(args[1]);
                 break;
             case "commit":
-                if(args.length==1){
+                if (args.length == 1) {
                     System.out.println("Please enter a commit message.");
                     System.exit(0);
                 }
@@ -80,27 +51,17 @@ public class Main {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
-
-                File fileToRemove = join(Repository.STAGING_AREA, args[1]);
-                if(fileToRemove.exists()){
-                    fileToRemove.delete();
-                }
-                int index=Repository.currentMasterTracked.getIndex(args[1]);
-                if(index!=-1){
-                    Repository.currentMasterTracked.remove(index);
-                    File CWDfile=join(Repository.CWD,args[1]);
-                    CWDfile.delete();
-                }
+                Repository.removeFile(args[1]);
 
 
                 break;
             case "log":
-                Commit currentCommit=Repository.master;
-                while(!currentCommit.pervCommit.getFirst().date.equals(new Date(0,0,0))){
+                Commit currentCommit = Repository.getMaster();
+                while (currentCommit.getMessage()!="initial commit") {
                     System.out.println("===\n");
-                    String Hash= String.format("Commit %s\n",currentCommit.getHashMetadata());
+                    String Hash = String.format("Commit %s\n", currentCommit.getHashMetadata());
                     System.out.println(Hash);
-                    String date=String.format("Date: %s\n",currentCommit.date);
+                    String date = String.format("Date: %s\n", currentCommit.date);
                     System.out.println(date);
                     System.out.println(currentCommit.getMessage());
                 }
