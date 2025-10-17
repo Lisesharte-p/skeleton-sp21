@@ -168,6 +168,7 @@ public class LinkedListDeque<T> implements gitlet.Deque<T> {
 
     public void remove(int index){
         Node p=sentinelLeft;
+        p=p.next;
         while(index!=0){
             index--;
             p=p.next;

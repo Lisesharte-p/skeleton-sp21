@@ -2,6 +2,8 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
+import java.util.Formatter;
 
 import static gitlet.Utils.*;
 
@@ -19,8 +21,10 @@ public class Main {
      */
     public static void main(String[] args) {
         // TODO: what if args is empty?
+
         if (args.length == 0) return;
         String firstArg = args[0];
+
         switch (firstArg) {
             case "init":
                 if (args.length != 1) {
@@ -36,8 +40,8 @@ public class Main {
                 }
                 File f = new File(args[1]);
                 if (f.exists()) {
-                    if(!Repository.tracked.found(args[1])){
-                        Repository.tracked.addLast(args[1]);
+                    if(!Repository.currentMasterTracked.found(args[1])){
+                        Repository.currentMasterTracked.addLast(args[1]);
                     }
                     String buffer=readContentsAsString(f);
                     File addFile = join(Repository.STAGING_AREA, args[1]);
@@ -81,9 +85,9 @@ public class Main {
                 if(fileToRemove.exists()){
                     fileToRemove.delete();
                 }
-                int index=Repository.tracked.getIndex(args[1]);
+                int index=Repository.currentMasterTracked.getIndex(args[1]);
                 if(index!=-1){
-                    Repository.tracked.remove(index);
+                    Repository.currentMasterTracked.remove(index);
                     File CWDfile=join(Repository.CWD,args[1]);
                     CWDfile.delete();
                 }
@@ -91,6 +95,15 @@ public class Main {
 
                 break;
             case "log":
+                Commit currentCommit=Repository.master;
+                while(!currentCommit.pervCommit.getFirst().date.equals(new Date(0,0,0))){
+                    System.out.println("===\n");
+                    String Hash= String.format("Commit %s\n",currentCommit.getHashMetadata());
+                    System.out.println(Hash);
+                    String date=String.format("Date: %s\n",currentCommit.date);
+                    System.out.println(date);
+                    System.out.println(currentCommit.getMessage());
+                }
                 break;
             case "global-log":
                 break;

@@ -2,9 +2,8 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.io.Serializable;
+import java.util.Date;
 
 import static gitlet.Utils.*;
 
@@ -32,7 +31,10 @@ public class Repository {
     public static LinkedListDeque<Commit> HEAD;
     public static Commit master;
     public static final File STAGING_AREA=join(GITLET_DIR,"stagingArea");
-    public static LinkedListDeque<String> tracked;
+    public static LinkedListDeque<String> currentMasterTracked;
+    static File HEADfile=join(GITLET_DIR,"HEAD");
+    static File MASTER=join(GITLET_DIR,"Master");
+    static File TRACKING=join(GITLET_DIR,"TRACKING");
 
     /* TODO: fill in the rest of this class. */
 
@@ -45,34 +47,63 @@ public class Repository {
 
         newRepo.mkdir();
         Commit initCommit=new Commit("initial commit",null);
-
+        initCommit.date=new Date(0,0,0);
         STAGING_AREA.mkdir();
-        addCommit(initCommit);
+
         HEAD=new LinkedListDeque<>();
+
+        try{
+            MASTER.createNewFile();
+            TRACKING.createNewFile();
+            HEADfile.createNewFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         master=initCommit;
         HEAD.addLast(initCommit);
-        tracked=new LinkedListDeque<String>();
+        addCommit(initCommit);
+        currentMasterTracked =new LinkedListDeque<String>();
+
+        writeContents(HEADfile,HEAD);
+        writeContents(MASTER,master);
+        writeContents(TRACKING,currentMasterTracked);
+
     }
     public static void addCommit(Commit newCommit){
         File f=join(GITLET_DIR, newCommit.getHashMetadata());
+        File c=join(GITLET_DIR,newCommit.getHashMetadata(),"data");
+
 
         f.mkdir();
-        for(File fs:newCommit.files){
-            try {
-                tracked.addLast(fs.getName());
-                String createFile=readContentsAsString(fs);
-                File newFile=join(f,fs.getName());
-                newFile.createNewFile();
-                writeContents(newFile,createFile);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+
+        if(newCommit.files!=null)
+        {
+            for (File fs : newCommit.files) {
+                try {
+                    currentMasterTracked.addLast(fs.getName());
+                    String createFile = readContentsAsString(fs);
+                    File newFile = join(f, fs.getName());
+                    newFile.createNewFile();
+                    writeContents(newFile, createFile);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
-        newCommit.tracked=tracked;
-        HEAD.remove(HEAD.getIndex(master));
-        HEAD.addLast(newCommit);
+        newCommit.tracked= currentMasterTracked;
+        if(HEAD!=null)
+        {
+            HEAD.remove(HEAD.getIndex(master));
+            HEAD.addLast(newCommit);
+        }
         master=newCommit;
-
+        try{
+            c.createNewFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        writeObject(c,newCommit);
         File[] fs=STAGING_AREA.listFiles();
         for(File files:fs){
             files.delete();
@@ -86,7 +117,7 @@ public class Repository {
             System.exit(0);
         }
         Commit thisCommit=new Commit(message,STAGING_AREA.listFiles());
-        thisCommit.pervCommit=master;
+        thisCommit.pervCommit.addLast(master);
         addCommit(thisCommit);
     }
 

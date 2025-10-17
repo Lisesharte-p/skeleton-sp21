@@ -24,37 +24,36 @@ public class Commit implements Serializable {
      * variable is used. We've provided one example for `message`.
      */
 
+    public File[] files;
+    public LinkedListDeque<Commit> pervCommit;
+    public LinkedListDeque<String> tracked;
     /**
      * The message of this Commit.
      */
     private String message;
-    public LinkedListDeque<File> files;
+    public Date date;
     private String hashMetadata;
     private LinkedListDeque<String> fileHash;
     private String timeStamp;
-    public Commit pervCommit;
-    public LinkedListDeque<String> tracked;
     /* TODO: fill in the rest of this class. */
 
     Commit(String message, File[] files) {
         this.message = message;
-        this.files=new LinkedListDeque<File>();
-        fileHash=new LinkedListDeque<>();
+        this.date=new Date();
+        fileHash = new LinkedListDeque<>();
+        this.files = files;
+        this.timeStamp = String.valueOf(new Date());
         if(files!=null)
         {
-            for (File file : files) {
-                this.files.addLast(file);
-            }
+            this.hashMetadata = sha1(message, timeStamp, files);
         }
-        this.timeStamp = String.valueOf(new Date());
-        this.hashMetadata = sha1(message, timeStamp);
+        else{
+            this.hashMetadata=sha1(message,timeStamp);
+        }
         updateHash();
     }
-    public void addFile(File f){
-        this.files.addLast(f);
-        this.fileHash.addLast(sha1(f));
-    }
-    public void updateHash(){
+
+    public void updateHash() {
         if (this.files != null) {
             for (File file : this.files) {
                 this.fileHash.addLast(sha1(file));
@@ -75,4 +74,6 @@ public class Commit implements Serializable {
     public String getMessage() {
         return message;
     }
+
+
 }
