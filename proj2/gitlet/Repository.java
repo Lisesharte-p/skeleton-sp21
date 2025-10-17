@@ -47,13 +47,14 @@ public class Repository {
         }
     }
     public static Commit getMaster(){
-        Commit masterThis=readObject(join(GITLET_DIR,master),Commit.class);
+        Commit masterThis=readObject(join(GITLET_DIR,master,"data"),Commit.class);
         return masterThis;
     }
     public static void initCommit(String message){
         File newRepo=GITLET_DIR;
         if(newRepo.exists()){
             System.out.println("A Gitlet version-control system already exists in the current directory.");
+            return;
         }
 
         newRepo.mkdir();
@@ -156,6 +157,8 @@ public class Repository {
             HEAD.add(newCommit.getHashMetadata());
         }
         master=newCommit.getHashMetadata();
+        writeObject(MASTER,master);
+        writeObject(HEADfile,HEAD);
         try{
             c.createNewFile();
         } catch (IOException e) {
@@ -175,7 +178,7 @@ public class Repository {
             System.exit(0);
         }
 
-        Commit thisCommit=new Commit(message, (ArrayList<String>) plainFilenamesIn(STAGING_AREA));
+        Commit thisCommit=new Commit(message, new ArrayList<String>( plainFilenamesIn(STAGING_AREA)));
         thisCommit.pervCommit.add(master);
         addCommit(thisCommit);
     }

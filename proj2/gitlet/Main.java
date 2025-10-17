@@ -57,13 +57,18 @@ public class Main {
                 break;
             case "log":
                 Commit currentCommit = Repository.getMaster();
-                while (currentCommit.getMessage()!="initial commit") {
-                    System.out.println("===\n");
-                    String Hash = String.format("Commit %s\n", currentCommit.getHashMetadata());
+                while (true) {
+                    System.out.println("===");
+                    String Hash = String.format("Commit %s", currentCommit.getHashMetadata());
                     System.out.println(Hash);
-                    String date = String.format("Date: %s\n", currentCommit.date);
+                    String date = String.format("Date: %s", currentCommit.date);
                     System.out.println(date);
                     System.out.println(currentCommit.getMessage());
+                    System.out.println();
+                    if (currentCommit.pervCommit.isEmpty()) {
+                        break;
+                    }
+                    currentCommit = currentCommit.getPervCommit();
                 }
                 break;
             case "global-log":

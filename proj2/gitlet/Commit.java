@@ -6,8 +6,8 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-
 import static gitlet.Utils.*;
+import static gitlet.Utils.readContentsAsString;
 
 /**
  * Represents a gitlet commit object.
@@ -42,12 +42,15 @@ public class Commit implements Serializable {
         this.message = message;
         this.date = new Date();
         fileHash = new ArrayList<>();
-
+        this.tracked=new ArrayList<>();
+        this.files=new ArrayList<>();
+        this.pervCommit=new ArrayList<>();
         this.timeStamp = String.valueOf(new Date());
         if (files != null) {
             for (String f : files) {
                 this.files.add(f);
-                this.fileHash.add(sha1(new File(f)));
+                String newfile=readContentsAsString(join(Repository.STAGING_AREA,f));
+                this.fileHash.add(sha1(newfile));
             }
 
 
@@ -60,7 +63,7 @@ public class Commit implements Serializable {
     }
 
     public Commit getPervCommit() {
-        File perv = join(Repository.GITLET_DIR, pervCommit.get(0));
+        File perv = join(Repository.GITLET_DIR, pervCommit.get(0),"data");
         return readObject(perv, Commit.class);
     }
 
