@@ -1,8 +1,11 @@
 package gitlet;
 
+import edu.princeton.cs.algs4.ST;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
@@ -31,11 +34,12 @@ public class Repository {
     public static final File GITLET_DIR = join(CWD, ".gitlet");
     public static ArrayList<String> HEAD;
     public static String master;
-    public static final File STAGING_AREA=join(GITLET_DIR,"stagingArea");
+    public static ArrayList<String> STAGING_AREA;
     public static ArrayList<String> currentMasterTracked;
     static File HEADfile=join(GITLET_DIR,"HEAD");
     static File MASTER=join(GITLET_DIR,"Master");
     static File TRACKING=join(GITLET_DIR,"TRACKING");
+    static File STAGING=join(GITLET_DIR,"STAGING");
 
     /* TODO: fill in the rest of this class. */
 
@@ -44,6 +48,7 @@ public class Repository {
             HEAD = readObject(HEADfile, ArrayList.class);
             master = readObject(MASTER, String.class);
             currentMasterTracked = readObject(TRACKING, ArrayList.class);
+            STAGING_AREA=readObject(STAGING, ArrayList.class);
         }
     }
     public static Commit getMaster(){
@@ -60,10 +65,10 @@ public class Repository {
         newRepo.mkdir();
         Commit initCommit=new Commit("initial commit",null);
 
-        initCommit.date=new Date(0,0,0);
-        initCommit.timeStamp=String.valueOf(new Date(0,0,0));
+        initCommit.date=new Date(0);
+        initCommit.timeStamp=String.valueOf(new Time(0));
         initCommit.hashMetadata=sha1(initCommit.getMessage(),initCommit.timeStamp);
-        STAGING_AREA.mkdir();
+        STAGING_AREA=new ArrayList<>();
 
         HEAD= new ArrayList<>();
 
@@ -71,6 +76,7 @@ public class Repository {
             MASTER.createNewFile();
             TRACKING.createNewFile();
             HEADfile.createNewFile();
+            STAGING.createNewFile();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -83,13 +89,11 @@ public class Repository {
         writeObject(HEADfile,HEAD);
         writeObject(MASTER,master);
         writeObject(TRACKING,currentMasterTracked);
+        writeObject(STAGING,STAGING_AREA);
 
     }
     public static void removeFile(String arg){
-        File fileToRemove = join(Repository.STAGING_AREA, arg);
-        if(fileToRemove.exists()){
-            fileToRemove.delete();
-        }
+        STAGING_AREA.remove(arg);
 
         if(Repository.currentMasterTracked.contains(arg)){
             Repository.currentMasterTracked.remove(arg);
@@ -100,34 +104,35 @@ public class Repository {
     public static void addFile(String arg){
         File f = new File(arg);
         if (f.exists()) {
-            if(!Repository.currentMasterTracked.contains(arg)){
-                Repository.currentMasterTracked.add(arg);
+
+            if (STAGING_AREA.contains(arg)) {
+                STAGING_AREA.remove(arg);
+                currentMasterTracked.remove(arg);
+            } else {
+                STAGING_AREA.add(arg);
+                currentMasterTracked.add(arg);
             }
-            String buffer=readContentsAsString(f);
-            File addFile = join(Repository.STAGING_AREA, arg);
+
             File currentMasterFile=join(Repository.GITLET_DIR,Repository.master,arg);
             if(currentMasterFile.exists())
             {
-                String currentMasterHash = sha1(currentMasterFile);
-                if (currentMasterHash.equals(sha1(f))) {
+                String argContent=readContentsAsString(f);
+                String content=readContentsAsString(currentMasterFile);
+                String currentMasterHash = sha1(content);
+                if (currentMasterHash.equals(sha1(argContent))) {
+                    writeObject(STAGING,STAGING_AREA);
+                    writeObject(TRACKING,currentMasterTracked);
                     System.exit(0);
                 }
             }
 
-            if (addFile.exists()) {
-                addFile.delete();
-            } else {
-                try {
-                    addFile.createNewFile();
-                    writeContents(addFile,buffer);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+
         } else {
             System.out.println("File does not exist.");
             System.exit(0);
         }
+        writeObject(STAGING,STAGING_AREA);
+        writeObject(TRACKING,currentMasterTracked);
     }
     public static void addCommit(Commit newCommit){
         File f=join(GITLET_DIR, newCommit.getHashMetadata());
@@ -139,8 +144,10 @@ public class Repository {
         if(newCommit.files!=null)
         {
             for (String fs : newCommit.files) {
-                try {
-                    currentMasterTracked.add(fs);
+                try {if(!currentMasterTracked.contains(fs))
+                    {
+                        currentMasterTracked.add(fs);
+                    }
                     String createFile = readContentsAsString(join(CWD,fs));
                     File newFile = join(f, fs);
                     newFile.createNewFile();
@@ -159,27 +166,27 @@ public class Repository {
         master=newCommit.getHashMetadata();
         writeObject(MASTER,master);
         writeObject(HEADfile,HEAD);
+        writeObject(STAGING,STAGING_AREA);
+        writeObject(TRACKING,currentMasterTracked);
         try{
             c.createNewFile();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         writeObject(c,newCommit);
-        File[] fs=STAGING_AREA.listFiles();
-        for(File files:fs){
-            files.delete();
-        }
 
 
     }
     public static void makeCommit(String message){
-        if(STAGING_AREA.listFiles().length==0){
+
+
+        Commit thisCommit=new Commit(message, STAGING_AREA);
+        thisCommit.pervCommit.add(master);
+        if(!thisCommit.checkChanged()){
             System.out.println("No changes added to the commit.");
             System.exit(0);
         }
 
-        Commit thisCommit=new Commit(message, new ArrayList<String>( plainFilenamesIn(STAGING_AREA)));
-        thisCommit.pervCommit.add(master);
         addCommit(thisCommit);
     }
 

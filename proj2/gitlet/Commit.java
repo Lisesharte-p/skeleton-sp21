@@ -2,6 +2,8 @@ package gitlet;
 
 // TODO: any imports you need here
 
+
+
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -49,7 +51,7 @@ public class Commit implements Serializable {
         if (files != null) {
             for (String f : files) {
                 this.files.add(f);
-                String newfile=readContentsAsString(join(Repository.STAGING_AREA,f));
+                String newfile=readContentsAsString(new File(f));
                 this.fileHash.add(sha1(newfile));
             }
 
@@ -67,7 +69,14 @@ public class Commit implements Serializable {
         return readObject(perv, Commit.class);
     }
 
+    public boolean checkChanged(){
+        Commit thePervCommit=getPervCommit();
+        if(thePervCommit.fileHash.equals(fileHash)){
+            return false;
 
+        }
+        return true;
+    }
     public String getHashMetadata() {
         return this.hashMetadata;
     }
