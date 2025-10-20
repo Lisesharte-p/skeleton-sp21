@@ -9,6 +9,8 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
+
 import static gitlet.Utils.*;
 
 // TODO: any imports you need here
@@ -22,7 +24,7 @@ import static gitlet.Utils.*;
 public class Repository {
     /**
      * TODO: add instance variables here.
-     *
+     * <p>
      * List all instance variables of the Repository class here with a useful
      * comment above them describing what that variable represents and how that
      * variable is used. We've provided two examples for you.
@@ -36,10 +38,10 @@ public class Repository {
     public static String master;
     public static ArrayList<String> STAGING_AREA;
     public static ArrayList<String> currentMasterTracked;
-    static File HEADfile=join(GITLET_DIR,"HEAD");
-    static File MASTER=join(GITLET_DIR,"Master");
-    static File TRACKING=join(GITLET_DIR,"TRACKING");
-    static File STAGING=join(GITLET_DIR,"STAGING");
+    static final File HEADfile=join(GITLET_DIR,"HEAD");
+    static final File MASTER=join(GITLET_DIR,"Master");
+    static final File TRACKING=join(GITLET_DIR,"TRACKING");
+    static final File STAGING=join(GITLET_DIR,"STAGING");
 
     /* TODO: fill in the rest of this class. */
 
@@ -51,9 +53,48 @@ public class Repository {
             STAGING_AREA=readObject(STAGING, ArrayList.class);
         }
     }
+    public static void getGlobalLog(){
+        List<String> commitNames=plainFilenamesIn(GITLET_DIR);
+
+        for(String x:new ArrayList<>(commitNames)){
+            File commitIter=join(GITLET_DIR, (String) x,"data");
+            Commit currCommit=readObject(commitIter, Commit.class);
+
+            System.out.println("===");
+            String Hash = String.format("Commit %s", currCommit.getHashMetadata());
+            System.out.println(Hash);
+            String date = String.format("Date: %s", currCommit.date);
+            System.out.println(date);
+            System.out.println(currCommit.getMessage());
+            System.out.println();
+
+
+
+        }
+
+    }
+    public static void findCommit(String message){
+        List<String> commitNames=plainFilenamesIn(GITLET_DIR);
+
+        for(String x:new ArrayList<>(commitNames)){
+            File commitIter=join(GITLET_DIR, (String) x,"data");
+            Commit currCommit=readObject(commitIter, Commit.class);
+            if(currCommit.getMessage().equals(message))
+            {
+                System.out.println("===");
+                String Hash = String.format("Commit %s", currCommit.getHashMetadata());
+                System.out.println(Hash);
+                String date = String.format("Date: %s", currCommit.date);
+                System.out.println(date);
+                System.out.println(currCommit.getMessage());
+                System.out.println();
+            }
+
+
+        }
+    }
     public static Commit getMaster(){
-        Commit masterThis=readObject(join(GITLET_DIR,master,"data"),Commit.class);
-        return masterThis;
+        return readObject(join(GITLET_DIR,master,"data"),Commit.class);
     }
     public static void initCommit(String message){
         File newRepo=GITLET_DIR;

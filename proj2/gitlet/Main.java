@@ -72,8 +72,14 @@ public class Main {
                 }
                 break;
             case "global-log":
+                Repository.getGlobalLog();
                 break;
             case "find":
+                if (args.length != 2) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                Repository.findCommit(args[1]);
                 break;
             case "status":
                 break;

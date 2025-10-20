@@ -36,8 +36,8 @@ public class Commit implements Serializable {
     /**
      * The message of this Commit.
      */
-    private String message;
-    private ArrayList<String> fileHash;
+    private final String message;
+    private final ArrayList<String> fileHash;
     /* TODO: fill in the rest of this class. */
 
     Commit(String message, ArrayList<String> files) {
@@ -71,11 +71,7 @@ public class Commit implements Serializable {
 
     public boolean checkChanged(){
         Commit thePervCommit=getPervCommit();
-        if(thePervCommit.fileHash.equals(fileHash)){
-            return false;
-
-        }
-        return true;
+        return !thePervCommit.fileHash.equals(fileHash);
     }
     public String getHashMetadata() {
         return this.hashMetadata;

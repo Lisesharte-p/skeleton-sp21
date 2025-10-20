@@ -20,7 +20,7 @@ import java.util.List;
 
 
 /** Assorted utilities.
- *
+ * <p>
  * Give this file a good read as it provides several useful utility functions
  * to save you some time.
  *
@@ -164,8 +164,8 @@ class Utils {
         new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return new File(dir, name).isFile();
-            }
+                return !(new File(dir, name).isFile());
+            }//changed for returning directory
         };
 
     /** Returns a list of the names of all plain files in the directory DIR, in
