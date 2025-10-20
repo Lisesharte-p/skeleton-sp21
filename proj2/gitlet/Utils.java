@@ -165,7 +165,7 @@ class Utils {
             @Override
             public boolean accept(File dir, String name) {
                 return !(new File(dir, name).isFile());
-            }//changed for returning directory
+            }//changed for returning directory(added "!")
         };
 
     /** Returns a list of the names of all plain files in the directory DIR, in
