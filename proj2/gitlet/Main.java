@@ -1,7 +1,7 @@
 package gitlet;
 
-import java.util.Date;
 
+import java.util.Objects;
 
 /**
  * Driver class for Gitlet, a subset of the Git version-control system.
@@ -56,7 +56,7 @@ public class Main {
 
                 break;
             case "log":
-                Commit currentCommit = Repository.getMaster();
+                Commit currentCommit = Repository.getCurrentBranchMaster();
                 while (true) {
                     System.out.println("===");
                     String Hash = String.format("Commit %s", currentCommit.getHashMetadata());
@@ -82,10 +82,29 @@ public class Main {
                 Repository.findCommit(args[1]);
                 break;
             case "status":
+                Repository.status();
                 break;
             case "checkout":
+
+                if (Objects.equals(args[1], "--")) {
+                    if (args.length == 3) {
+                        Repository.checkOutFile(Repository.currentBranchMaster, args[2]);
+                    } else {
+                        System.out.println("Incorrect operands.");
+                        System.exit(0);
+                    }
+                } else if (args.length == 4) {
+                    Repository.checkOutFile(args[1], args[3]);
+                } else if (args.length == 2) {
+                    Repository.checkOutAllFile(args[1]);
+                }
                 break;
             case "branch":
+                if (args.length != 2) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                Repository.makeBranch(args[1]);
                 break;
             case "rm-branch":
                 break;

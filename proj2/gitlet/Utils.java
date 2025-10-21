@@ -164,7 +164,7 @@ class Utils {
         new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return !(new File(dir, name).isFile());
+                return (new File(dir, name).isFile());
             }//changed for returning directory(added "!")
         };
 
