@@ -32,13 +32,12 @@ public class Repository {
     static final File TRACKING = join(GITLET_DIR, "TRACKING");
     static final File STAGING = join(GITLET_DIR, "STAGING");
     static final File BRANCHES = join(GITLET_DIR, "BRANCHES");
-    private static final FilenameFilter PLAIN_DIRS =
-            new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return !(new File(dir, name).isFile());
-                }//changed for returning directory(added "!")
-            };
+    private static final FilenameFilter PLAIN_DIRS = new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+            return !(new File(dir, name).isFile());
+        }//changed for returning directory(added "!")
+    };
     public static ArrayList<String> HEAD;
     public static ArrayList<branchHead> branches;
     public static String currentBranchMaster;
@@ -52,6 +51,7 @@ public class Repository {
             currentBranchMaster = readObject(MASTER, String.class);
             currentMasterTracked = readObject(TRACKING, ArrayList.class);
             STAGING_AREA = readObject(STAGING, ArrayList.class);
+            branches=readObject(BRANCHES,ArrayList.class);
         }
     }
 
@@ -61,6 +61,7 @@ public class Repository {
             writeObject(MASTER, currentBranchMaster);
             writeObject(TRACKING, currentMasterTracked);
             writeObject(STAGING, STAGING_AREA);
+            writeObject(BRANCHES,branches);
         }
     }
 
@@ -143,9 +144,10 @@ public class Repository {
         branchHead branchMaster = new branchHead();
         branchMaster.branchName = "master";
         branchMaster.hash = initCommit.getHashMetadata();
-        addCommit(initCommit);
+
         currentMasterTracked = new ArrayList<>();
         makeBranch("master");
+        addCommit(initCommit);
         writeObject(BRANCHES, branches);
         writeObject(HEADfile, HEAD);
         writeObject(MASTER, currentBranchMaster);
@@ -253,12 +255,12 @@ public class Repository {
         }
         newCommit.tracked = currentMasterTracked;
         if (branches != null) {
-            branchHead msHEAD = new branchHead();
-            msHEAD.branchName =
-                    msHEAD.hash = currentBranchMaster;
-            branches.remove(msHEAD);
-            msHEAD.hash = newCommit.getHashMetadata();
-            branches.add(msHEAD);
+            for(branchHead x:branches){
+                if(x.hash.equals(currentBranchMaster)){
+                    x.hash= newCommit.getHashMetadata();
+                    break;
+                }
+            }
 
         }
         currentBranchMaster = newCommit.getHashMetadata();
@@ -269,6 +271,7 @@ public class Repository {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        saveConfig();
         writeObject(c, newCommit);
         writeObject(MASTER, currentBranchMaster);
         writeObject(HEADfile, HEAD);
@@ -301,6 +304,7 @@ public class Repository {
         currentBranchMaster = newBranch.hash;
         branches.add(newBranch);
         writeObject(BRANCHES, branches);
+        saveConfig();
     }
 
     public static void status() {
@@ -439,6 +443,12 @@ public class Repository {
         Commit thisBranch = readObject(join(fileToCheck, "data"), Commit.class);
         ArrayList<String> filesInCommit = (ArrayList<String>) plainFilenamesIn(fileToCheck);
         for (String x : filesInCommit) {
+            if (currentMasterTracked.contains(x)) {
+                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.exit(0);
+            }
+        }
+        for (String x : filesInCommit) {
             File CWDFILE = join(CWD, x);
             if (!CWDFILE.exists()) {
                 try {
@@ -449,7 +459,6 @@ public class Repository {
                     throw new RuntimeException(e);
                 }
             } else {
-                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
                 String content = readContentsAsString(join(fileToCheck, x));
                 writeObject(CWDFILE, content);
             }
@@ -478,13 +487,24 @@ public class Repository {
         System.exit(0);
     }
 
-    public static void reset(String commitHash){
+    public static void reset(String commitHash) {
+
+        for (branchHead x : branches) {
+            if (x.hash.equals(commitHash)) {
+                x.hash = commitHash;
+                checkOutAllFile(x.branchName);
+                currentBranchMaster = commitHash;
+                saveConfig();
+                System.exit(0);
+            }
+        }
+        System.out.println("No commit with that id exists.");
+
 
     }
 
     static class stagedPair implements Serializable {
-        public static final Comparator<stagedPair> BY_NAME =
-                Comparator.comparing(b -> b.name);
+        public static final Comparator<stagedPair> BY_NAME = Comparator.comparing(b -> b.name);
         String name;
         Boolean markedToRemove;
 
@@ -502,9 +522,8 @@ public class Repository {
 
     }
 
-    static class branchHead {
-        public static final Comparator<branchHead> BY_BRANCH_NAME =
-                Comparator.comparing(b -> b.branchName);
+    static class branchHead implements Serializable {
+        public static final Comparator<branchHead> BY_BRANCH_NAME = Comparator.comparing(b -> b.branchName);
         String hash;
         String branchName;
 
