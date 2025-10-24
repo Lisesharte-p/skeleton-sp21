@@ -240,14 +240,25 @@ public class Repository {
 
         if (newCommit.files != null) {
             for (String fs : newCommit.files) {
+                stagedPair x=new stagedPair();
+                x.name=fs;
                 try {
                     if (!currentMasterTracked.contains(fs)) {
                         currentMasterTracked.add(fs);
                     }
-                    String createFile = readContentsAsString(join(CWD, fs));
-                    File newFile = join(f, fs);
-                    newFile.createNewFile();
-                    writeContents(newFile, createFile);
+                    if(STAGING_AREA.contains(x))
+                    {
+                        String createFile = readContentsAsString(join(CWD, fs));
+                        File newFile = join(f, fs);
+                        newFile.createNewFile();
+                        writeContents(newFile, createFile);
+                    }else {
+                        Commit perv=newCommit.getPervCommit();
+                        String Content=readContentsAsString(join(GITLET_DIR, perv.getHashMetadata(),fs));
+                        File newFile = join(f, fs);
+                        newFile.createNewFile();
+                        writeContents(newFile,Content);
+                    }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
