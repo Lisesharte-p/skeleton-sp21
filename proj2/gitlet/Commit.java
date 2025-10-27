@@ -26,7 +26,7 @@ public class Commit implements Serializable {
      * comment above them describing what that variable represents and how that
      * variable is used. We've provided one example for `message`.
      */
-
+    public boolean isMerge;
     public ArrayList<String> files;
     public ArrayList<String> pervCommit;
     public ArrayList<String> tracked;

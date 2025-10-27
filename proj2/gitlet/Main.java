@@ -48,7 +48,7 @@ public class Main {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
-                Repository.makeCommit(args[1]);
+                Repository.makeCommit(args[1],false,null);
                 break;
             case "rm":
                 if (args.length != 2) {

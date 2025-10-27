@@ -236,6 +236,7 @@ public class Repository {
         }
         writeObject(STAGING, STAGING_AREA);
         writeObject(TRACKING, currentMasterTracked);
+        saveConfig();
     }
 
     public static void addCommit(Commit newCommit) {
@@ -297,7 +298,7 @@ public class Repository {
 
     }
 
-    public static void makeCommit(String message) {
+    public static void makeCommit(String message,boolean merge,String mergingCommit) {
         for (stagedPair x : STAGING_AREA) {
             if (x.markedToRemove) {
                 currentMasterTracked.remove(x.name);
@@ -306,6 +307,10 @@ public class Repository {
 
         Commit thisCommit = new Commit(message, currentMasterTracked);
         thisCommit.pervCommit.add(currentBranchMaster);
+        if(merge){
+            thisCommit.pervCommit.add(mergingCommit);
+            thisCommit.isMerge=true;
+        }
         if (!thisCommit.checkChanged()) {
             System.out.println("No changes added to the commit.");
             System.exit(0);
@@ -534,6 +539,9 @@ public class Repository {
             System.out.println("===");
             String Hash = String.format("commit %s", currentCommit.getHashMetadata());
             System.out.println(Hash);
+            if(currentCommit.isMerge){
+                System.out.println(String.format("Merge: %s %s", currentCommit.pervCommit.get(0).substring(0,7),currentCommit.pervCommit.get(1).substring(0,7)));
+            }
             Instant instant = currentCommit.date.toInstant();
             ZonedDateTime zonedDate = instant.atZone(targetZone);
             String formattedDate = dateFormatter.format(zonedDate);
@@ -557,7 +565,7 @@ public class Repository {
             System.out.print("You have uncommitted changes.");
         }
         Commit givenBranch = null;
-        String currentBranchMasterName;
+        String currentBranchMasterName="";
         for (branchHead x : branches) {
             if (x.branchName.equals(branchName)) {
                 givenBranch = readObject(join(GITLET_DIR, x.hash, "data"), Commit.class);
@@ -583,7 +591,77 @@ public class Repository {
             System.out.print("Current branch fast-forwarded.");
             System.exit(0);
         }
+        HashSet<String> k=new HashSet<>(givenBranch.files);
+        k.addAll(thisBranch.files);
+        k.addAll(LCA.files);
+        currentMasterTracked=new ArrayList<>();
+        boolean conflict=false;
+        for(String x:k){
+            File thisFile=join(GITLET_DIR, thisBranch.getHashMetadata(),x);
+            File givenFile=join(GITLET_DIR,givenBranch.getHashMetadata(),x);
+            File LCAFile=join(GITLET_DIR,LCA.getHashMetadata(),x);
+            File CWDFile=join(CWD,x);
+            if(!thisFile.exists()&&!givenFile.exists()){
+                continue;
+            }
+            else if(checkFileChanged(LCA,givenBranch,x)&&!checkFileChanged(LCA,thisBranch,x)){
+                if(givenFile.exists())
+                {
+                    checkOutFile(givenBranch.getHashMetadata(), x);
+                    addFile(x);
+                }
+            } else if (!(checkFileChanged(LCA,givenBranch,x)&&!checkFileChanged(LCA,thisBranch,x))) {
+                if(thisFile.exists())
+                {
+                    checkOutFile(thisBranch.getHashMetadata(), x);
+                    addFile(x);
+                }
+            }
+            else if(sha1(readContentsAsString(thisFile)).equals(
+                    sha1(readContentsAsString(givenFile))
+            )){
+                checkOutFile(thisBranch.getHashMetadata(), x);
+                addFile(x);
+            } else if (!LCAFile.exists()&&givenFile.exists()&&!thisFile.exists()) {
+                checkOutFile(givenBranch.getHashMetadata(), x);
+                addFile(x);
+            }else if(!LCAFile.exists()&&!givenFile.exists()&&thisFile.exists()){
+                checkOutFile(thisBranch.getHashMetadata(),x);
+            }else if(!checkFileChanged(LCA,thisBranch,x)&& !givenFile.exists()){
+                if(CWDFile.exists()){
+                    CWDFile.delete();
+                }
+            } else if (!checkFileChanged(LCA,givenBranch,x)&& !thisFile.exists()) {
+                continue;
+            } else if (checkFileChanged(LCA, thisBranch, x)
+                    && checkFileChanged(LCA, givenBranch, x)
+                    && checkFileChanged(thisBranch, givenBranch, x)) {
+                String a="";
+                String b="";
+                if(thisFile.exists()){
+                    a=readContentsAsString(thisFile);
+                }
+                if(givenFile.exists()){
+                    b=readContentsAsString(givenFile);
+                }
+                String newFileContent=String.format("<<<<<<< HEAD\n%s\n=======\n%s\n>>>>>>>",a,b);
+                if(!CWDFile.exists()){
+                    try{
+                        CWDFile.createNewFile();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                writeObject(CWDFile,newFileContent);
+                conflict=true;
+            }
+        }
 
+        makeCommit(String.format("Merged %s into %s.",branchName,currentBranchMasterName),true, givenBranch.getHashMetadata());
+
+        if(conflict){
+            System.out.println("Encountered a merge conflict.");
+        }
 
     }
 
