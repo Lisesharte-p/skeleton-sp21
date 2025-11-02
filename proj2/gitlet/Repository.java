@@ -323,7 +323,7 @@ public class Repository {
         branchHead newBranch = new branchHead();
         newBranch.hash = getCurrentBranchMaster().getHashMetadata();
         newBranch.branchName = arg;
-        currentBranchMaster = newBranch.hash;
+        //currentBranchMaster = newBranch.hash;
         branches.add(newBranch);
         writeObject(BRANCHES, branches);
         saveConfig();
