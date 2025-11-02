@@ -68,6 +68,9 @@ public class Repository {
             writeObject(TRACKING, currentMasterTracked);
             writeObject(STAGING, STAGING_AREA);
             writeObject(BRANCHES, branches);
+        }else{
+            System.out.print("Not in an initialized Gitlet directory.\n");
+            System.exit(0);
         }
     }
 

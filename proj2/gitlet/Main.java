@@ -21,7 +21,10 @@ public class Main {
     public static void main(String[] args) {
         // TODO: what if args is empty?
 
-        if (args.length == 0) return;
+        if (args.length == 0) {
+            System.out.print("Please enter a command.\n");
+
+            return;}
         String firstArg = args[0];
         Repository.readConfig();
         switch (firstArg) {
