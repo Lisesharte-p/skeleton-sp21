@@ -173,11 +173,11 @@ public class Repository {
         stagedPair rmFile = new stagedPair();
         rmFile.name = arg;
         rmFile.markedToRemove = true;
-        if (!(STAGING_AREA.contains(rmFile) && currentMasterTracked.contains(arg))) {
+        if (!STAGING_AREA.contains(rmFile) && !currentMasterTracked.contains(arg)) {
             System.out.println("No reason to remove the file.");
             System.exit(0);
         }
-        boolean rmv=false;
+
         if (Repository.currentMasterTracked.contains(arg)) {
             Repository.currentMasterTracked.remove(arg);
             File CWDfile = join(Repository.CWD, arg);
