@@ -330,36 +330,36 @@ public class Repository {
     }
 
     public static void status() {
-        System.out.println("=== Branches ===\n");
+        System.out.println("=== Branches ===");
         branches.sort(branchHead.BY_BRANCH_NAME);
         STAGING_AREA.sort(stagedPair.BY_NAME);
         for (branchHead x : branches) {
             if (Objects.equals(x.hash, currentBranchMaster)) {
                 System.out.print("*");
-                System.out.println(x.branchName);
+                System.out.print(x.branchName);
                 System.out.print("\n");
             } else {
                 System.out.println(x.branchName);
 
             }
         }
-        System.out.println("\n");
-        System.out.println("=== Staged Files ===\n");
+        System.out.print("\n");
+        System.out.println("=== Staged Files ===");
         for (stagedPair x : STAGING_AREA) {
             System.out.println(x.name);
-            System.out.println("\n");
+
         }
-        System.out.println("\n");
-        System.out.println("=== Removed Files ===\n");
+        System.out.print("\n");
+        System.out.println("=== Removed Files ===");
         if (removedFiles != null) {
             removedFiles.sort(Comparator.naturalOrder());
             for (String x : removedFiles) {
                 System.out.println(x);
-                System.out.println("\n");
+
             }
         }
-        System.out.println("\n");
-        System.out.println("=== Modifications Not Staged For Commit ===\n");
+        System.out.println();
+        System.out.print("=== Modifications Not Staged For Commit ===\n");
 
         List<String> temp1 = plainFilenamesIn(join(GITLET_DIR, currentBranchMaster));
         ArrayList<String> filesInCurrentCommit = new ArrayList<>(temp1);
@@ -373,43 +373,44 @@ public class Repository {
                 if (!filesInCWD.contains(x) && STAGING_AREA.contains(InSTAGE)) {
                     for (stagedPair k : STAGING_AREA) {
                         if (k.equals(InSTAGE) && k.markedToRemove == false) {
-                            System.out.println(x);
-                            System.out.println(" (deleted)\n");
+                            System.out.print(x);
+                            System.out.print(" (deleted)\n");
                         }
                     }
                 } else if (STAGING_AREA.contains(InSTAGE)) {
                     String fileInCommit = readContentsAsString(join(GITLET_DIR, currentBranchMaster, x));
                     String fileInCWD = readContentsAsString(join(CWD, x));
                     if (!sha1(fileInCWD).equals(sha1(fileInCommit))) {
-                        System.out.println(x);
-                        System.out.println(" (modified)\n");
+                        System.out.print(x);
+                        System.out.print(" (modified)\n");
                     }
                 }
             }
             for (String x : filesInCWD) {
                 if (!filesInCurrentCommit.contains(x)) {
-                    System.out.println(x);
-                    System.out.println(" (new)\n");
+                    System.out.print(x);
+                    System.out.print(" (new)\n");
                 } else {
                     String fileInCommit = readContentsAsString(join(GITLET_DIR, currentBranchMaster, x));
                     String fileInCWD = readContentsAsString(join(CWD, x));
                     if (!sha1(fileInCWD).equals(sha1(fileInCommit))) {
-                        System.out.println(x);
-                        System.out.println(" (modified)\n");
+                        System.out.print(x);
+                        System.out.print(" (modified)\n");
                     }
                 }
             }
         }
-
-        System.out.println("=== Untracked Files ===\n");
+        System.out.println();
+        System.out.println("=== Untracked Files ===");
         if (filesInCWD != null) {
             for (String x : filesInCWD) {
                 if (!currentMasterTracked.contains(x)) {
                     System.out.println(x);
-                    System.out.println("\n");
+
                 }
             }
         }
+        System.out.println();
     }
 
     static List<String> plainDirnamesIn(File dir) {
@@ -652,7 +653,7 @@ public class Repository {
                         throw new RuntimeException(e);
                     }
                 }
-                writeObject(CWDFile,newFileContent);
+                writeContents(CWDFile,newFileContent);
                 conflict=true;
             }
         }
