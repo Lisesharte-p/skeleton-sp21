@@ -413,7 +413,7 @@ public class Repository {
                 }
             }
         }
-        System.out.println();
+        System.out.println("\n");
     }
 
     static List<String> plainDirnamesIn(File dir) {
