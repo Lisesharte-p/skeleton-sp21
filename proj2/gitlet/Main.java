@@ -43,7 +43,7 @@ public class Main {
                 Repository.addFile(args[1]);
                 break;
             case "commit":
-                if (args.length == 1) {
+                if (args.length == 1|| Objects.equals(args[1], "")) {
                     System.out.println("Please enter a commit message.");
                     System.exit(0);
                 }

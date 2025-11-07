@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
 import java.sql.Time;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -37,10 +38,11 @@ public class Repository {
     static final File STAGING = join(GITLET_DIR, "STAGING");
     static final File BRANCHES = join(GITLET_DIR, "BRANCHES");
     static final File RMFILE = join(GITLET_DIR, "RMFILE");
+    static final File STAGINGFOLDER=join(GITLET_DIR,"STAGEAREA");
     private static final FilenameFilter PLAIN_DIRS = new FilenameFilter() {
         @Override
         public boolean accept(File dir, String name) {
-            return !(new File(dir, name).isFile());
+            return !(new File(dir, name).isFile())&&!name.equals("STAGINGAREA");
         }//changed for returning directory(added "!")
     };
     public static ArrayList<String> HEAD;
@@ -79,7 +81,7 @@ public class Repository {
     /* TODO: fill in the rest of this class. */
 
     public static void getGlobalLog() {
-        List<String> commitNames = plainFilenamesIn(GITLET_DIR);
+        List<String> commitNames = plainDirnamesIn(GITLET_DIR);
         commitNames.sort(Comparator.naturalOrder());
         for (String x : new ArrayList<>(commitNames)) {
             File commitIter = join(GITLET_DIR, x, "data");
@@ -146,6 +148,7 @@ public class Repository {
             STAGING.createNewFile();
             BRANCHES.createNewFile();
             RMFILE.createNewFile();
+            STAGINGFOLDER.mkdir();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -221,8 +224,11 @@ public class Repository {
 
 
             File currentMasterFile = join(Repository.GITLET_DIR, Repository.currentBranchMaster, arg);
+            File STAGINGFILE=join(STAGINGFOLDER,arg);
+            String argContent = readContentsAsString(f);
+
             if (currentMasterFile.exists()) {
-                String argContent = readContentsAsString(f);
+
                 String content = readContentsAsString(currentMasterFile);
                 String currentMasterHash = sha1(content);
                 if (currentMasterHash.equals(sha1(argContent))) {
@@ -232,19 +238,42 @@ public class Repository {
                     System.exit(0);
                 }
             }
-            for (stagedPair x : STAGING_AREA) {
-                if (x.equals(newFile)) {
-                    if (x.markedToRemove) {
-                        x.markedToRemove = false;
-                        break;
-                    } else {
-                        STAGING_AREA.remove(x);
-                        break;
+            if(STAGINGFILE.exists())
+            {
+                String STAGINGContent=readContentsAsString(STAGINGFILE);
+                if(sha1(STAGINGContent).equals(sha1(argContent)))
+                {
+                    for (stagedPair x : STAGING_AREA) {
+                        if (x.equals(newFile)) {
+                            if (x.markedToRemove) {
+                                x.markedToRemove = false;
+                                break;
+                            } else {
+                                STAGING_AREA.remove(x);
+                                STAGINGFILE.delete();
+                                break;
+                            }
+                        }
                     }
+
+                }else{
+                    writeContents(STAGINGFILE,argContent);
                 }
+                saveConfig();
+                System.exit(0);
             }
             if (!STAGING_AREA.contains(newFile)) {
                 STAGING_AREA.add(newFile);
+                try
+                {
+                    STAGINGFILE.createNewFile();
+                    writeContents(STAGINGFILE,argContent);
+                    saveConfig();
+                    System.exit(0);
+
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
         } else {
@@ -272,7 +301,7 @@ public class Repository {
                         currentMasterTracked.add(fs);
                     }
                     if (STAGING_AREA.contains(x)) {
-                        String createFile = readContentsAsString(join(CWD, fs));
+                        String createFile = readContentsAsString(join(STAGINGFOLDER, fs));
                         File newFile = join(f, fs);
                         newFile.createNewFile();
                         writeContents(newFile, createFile);
@@ -300,7 +329,10 @@ public class Repository {
         }
         currentBranchMaster = newCommit.getHashMetadata();
         STAGING_AREA = new ArrayList<>();
-
+        removedFiles=new ArrayList<>();
+        for(File x:STAGINGFOLDER.listFiles()){
+            x.delete();
+        }
         try {
             c.createNewFile();
         } catch (IOException e) {
@@ -363,7 +395,10 @@ public class Repository {
         System.out.print("\n");
         System.out.println("=== Staged Files ===");
         for (stagedPair x : STAGING_AREA) {
-            System.out.println(x.name);
+            if(!x.markedToRemove)
+            {
+                System.out.println(x.name);
+            }
 
         }
         System.out.print("\n");
@@ -379,8 +414,10 @@ public class Repository {
         System.out.print("=== Modifications Not Staged For Commit ===\n");
 
         List<String> temp1 = plainFilenamesIn(join(GITLET_DIR, currentBranchMaster));
-        ArrayList<String> filesInCurrentCommit = new ArrayList<>(temp1);
 
+
+        ArrayList<String> filesInCurrentCommit = new ArrayList<>(temp1);
+        filesInCurrentCommit.remove("data");
         List<String> temp2 = plainFilenamesIn(CWD);
         ArrayList<String> filesInCWD = new ArrayList<>(temp2);
         if (filesInCurrentCommit != null && filesInCWD != null) {
@@ -404,10 +441,10 @@ public class Repository {
                 }
             }
             for (String x : filesInCWD) {
-                if (!filesInCurrentCommit.contains(x)) {
+                if (!filesInCurrentCommit.contains(x)&&!STAGING_AREA.contains(new stagedPair(x))) {
                     System.out.print(x);
                     System.out.print(" (new)\n");
-                } else {
+                } else if(join(GITLET_DIR,currentBranchMaster,x).exists()){
                     String fileInCommit = readContentsAsString(join(GITLET_DIR, currentBranchMaster, x));
                     String fileInCWD = readContentsAsString(join(CWD, x));
                     if (!sha1(fileInCWD).equals(sha1(fileInCommit))) {
@@ -427,7 +464,7 @@ public class Repository {
                 }
             }
         }
-        System.out.println("\n");
+        System.out.print("\n");
     }
 
     static List<String> plainDirnamesIn(File dir) {
@@ -435,6 +472,7 @@ public class Repository {
         if (files == null) {
             return null;
         } else {
+
             Arrays.sort(files);
             return Arrays.asList(files);
         }
@@ -534,14 +572,19 @@ public class Repository {
     }
 
     public static void reset(String commitHash) {
+        ArrayList<String> dirNames= (ArrayList<String>) plainDirnamesIn(GITLET_DIR);
+        for (String x : dirNames) {
+            if (x.equals(commitHash)) {
 
-        for (branchHead x : branches) {
-            if (x.hash.equals(commitHash)) {
-                x.hash = commitHash;
-                checkOutAllFile(x.branchName);
-                currentBranchMaster = commitHash;
-                saveConfig();
-                System.exit(0);
+                for(branchHead y:branches){
+                    if(y.hash.equals(currentBranchMaster));
+                    currentBranchMaster = commitHash;
+                    checkOutAllFile(y.branchName);
+                    saveConfig();
+                    System.exit(0);
+                }
+
+
             }
         }
         System.out.println("No commit with that id exists.");
@@ -704,7 +747,14 @@ public class Repository {
         public static final Comparator<stagedPair> BY_NAME = Comparator.comparing(b -> b.name);
         String name;
         Boolean markedToRemove;
+        String hash;
 
+        stagedPair() {
+
+        }
+        stagedPair(String x){
+            name=x;
+        }
         @Override
         public boolean equals(Object o) {
             if (o instanceof stagedPair) {
