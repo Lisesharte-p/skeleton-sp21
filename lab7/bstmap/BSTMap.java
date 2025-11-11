@@ -114,7 +114,24 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B {
 
     @Override
     public Object remove(Object key) {
-        throw new UnsupportedOperationException();
+        BSTNode nodeToRemove;
+
+        if(root.key.compareTo((K)key)==0){
+            if(this.left==null&&this.right==null){
+
+            } else if (this.left==null) {
+
+            } else if (this.right == null){
+
+            }else{
+
+            }
+        } else if (root.key.compareTo((K)key)==-1) {
+            this.right.remove(key);
+        }else{
+            this.left.remove(key);
+        }
+
     }
 
     @Override

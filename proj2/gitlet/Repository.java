@@ -420,36 +420,40 @@ public class Repository {
         filesInCurrentCommit.remove("data");
         List<String> temp2 = plainFilenamesIn(CWD);
         ArrayList<String> filesInCWD = new ArrayList<>(temp2);
+        List<String> temp3=plainFilenamesIn(STAGINGFOLDER);
+        ArrayList<String> filesStaged=new ArrayList<>(temp3);
         if (filesInCurrentCommit != null && filesInCWD != null) {
-            for (String x : filesInCurrentCommit) {
-                stagedPair InSTAGE = new stagedPair();
-                InSTAGE.name = x;
-                if (!filesInCWD.contains(x) && STAGING_AREA.contains(InSTAGE)) {
-                    for (stagedPair k : STAGING_AREA) {
-                        if (k.equals(InSTAGE) && k.markedToRemove == false) {
+
+            for (String x : filesInCWD) {
+                if(filesInCurrentCommit.contains(x)){
+                    String fileContent=readContentsAsString(join(GITLET_DIR,currentBranchMaster,x));
+                    String fileInCWD=readContentsAsString(join(CWD,x));
+                    if(!sha1(fileInCWD).equals(sha1(fileContent))){
+                        if(!filesStaged.contains(x)){
                             System.out.print(x);
-                            System.out.print(" (deleted)\n");
+                            System.out.print(" (modified)\n");
+                            continue;
                         }
                     }
-                } else if (STAGING_AREA.contains(InSTAGE)) {
-                    String fileInCommit = readContentsAsString(join(GITLET_DIR, currentBranchMaster, x));
-                    String fileInCWD = readContentsAsString(join(CWD, x));
-                    if (!sha1(fileInCWD).equals(sha1(fileInCommit))) {
+                }
+                if(filesStaged.contains(x)){
+                    if(!join(CWD,x).exists()){
+                        System.out.print(x);
+                        System.out.print(" (deleted)\n");
+                        continue;
+                    }
+                    String fileInCWD=readContentsAsString(join(CWD,x));
+                    String fileStaged=readContentsAsString(join(STAGINGFOLDER,x));
+                    if(!sha1(fileInCWD).equals(sha1(fileStaged))){
                         System.out.print(x);
                         System.out.print(" (modified)\n");
+                        continue;
                     }
                 }
-            }
-            for (String x : filesInCWD) {
-                if (!filesInCurrentCommit.contains(x)&&!STAGING_AREA.contains(new stagedPair(x))) {
-                    System.out.print(x);
-                    System.out.print(" (new)\n");
-                } else if(join(GITLET_DIR,currentBranchMaster,x).exists()){
-                    String fileInCommit = readContentsAsString(join(GITLET_DIR, currentBranchMaster, x));
-                    String fileInCWD = readContentsAsString(join(CWD, x));
-                    if (!sha1(fileInCWD).equals(sha1(fileInCommit))) {
+                if(filesInCurrentCommit.contains(x)&&!join(CWD,x).exists()){
+                    if(!removedFiles.contains(x)){
                         System.out.print(x);
-                        System.out.print(" (modified)\n");
+                        System.out.print(" (deleted)\n");
                     }
                 }
             }
@@ -458,7 +462,7 @@ public class Repository {
         System.out.println("=== Untracked Files ===");
         if (filesInCWD != null) {
             for (String x : filesInCWD) {
-                if (!currentMasterTracked.contains(x)) {
+                if (!currentMasterTracked.contains(x)&&!filesStaged.contains(x)) {
                     System.out.println(x);
 
                 }
