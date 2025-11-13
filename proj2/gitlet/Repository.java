@@ -23,13 +23,7 @@ import static gitlet.Utils.*;
  * @author TODO
  */
 public class Repository {
-    /**
-     * The current working directory.
-     */
     public static final File CWD = new File(System.getProperty("user.dir"));
-    /**
-     * The .gitlet directory.
-     */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
     static final File HEADfile = join(GITLET_DIR, "HEAD");
     static final File MASTER = join(GITLET_DIR, "Master");
@@ -37,35 +31,35 @@ public class Repository {
     static final File STAGING = join(GITLET_DIR, "STAGING");
     static final File BRANCHES = join(GITLET_DIR, "BRANCHES");
     static final File RMFILE = join(GITLET_DIR, "RMFILE");
-    static final File STAGINGFOLDER=join(GITLET_DIR,"STAGEAREA");
+    static final File STAGINGFOLDER = join(GITLET_DIR, "STAGEAREA");
     private static final FilenameFilter PLAIN_DIRS = new FilenameFilter() {
         @Override
         public boolean accept(File dir, String name) {
-            return !(new File(dir, name).isFile())&&!name.equals("STAGINGAREA");
+            return !(new File(dir, name).isFile()) && !name.equals("STAGINGAREA");
         }//changed for returning directory(added "!")
     };
     public static ArrayList<String> HEAD;
-    public static ArrayList<branchHead> branches;
-    public static branchHead currentBranchMaster;
-
-
-    public static ArrayList<stagedPair> STAGING_AREA;
     public static ArrayList<String> currentMasterTracked;
     public static ArrayList<String> removedFiles;
+    static ArrayList<branchHead> branches;
+    static branchHead currentBranchMaster;
+    static ArrayList<stagedPair> STAGING_AREA;
 
-    public static String checkShortUid(String shortUid){
-        List<String>temp=plainDirnamesIn(GITLET_DIR);
-        if(shortUid.length()<10)
-        {
-            for (String x : new ArrayList<>(temp)) {
-                if (x.substring(0, 7).equals(shortUid)) {
-                    return x;
+    public static String checkShortUid(String shortUid) {
+        List<String> temp = plainDirnamesIn(GITLET_DIR);
+        if (shortUid.length() < 10) {
+            if (temp != null) {
+                for (String x : new ArrayList<>(temp)) {
+                    if (x.contains(shortUid)) {
+                        return x;
+                    }
                 }
             }
             return "-1";
         }
         return shortUid;
     }
+
     public static void readConfig() {
         if (HEADfile.exists() && MASTER.exists() && TRACKING.exists() && STAGING.exists()) {
             HEAD = readObject(HEADfile, ArrayList.class);
@@ -92,28 +86,37 @@ public class Repository {
         }
     }
 
-    /* TODO: fill in the rest of this class. */
-
     public static void getGlobalLog() {
         List<String> commitNames = plainDirnamesIn(GITLET_DIR);
+        if (commitNames != null) {
+            commitNames.sort(Comparator.naturalOrder());
+        }
 
-        commitNames.sort(Comparator.naturalOrder());
-        for (String x : new ArrayList<>(commitNames)) {
-            if(x.equals("STAGEAREA")){
-                continue;
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEE MMM d HH:mm:ss yyyy Z", Locale.US);
+        ZoneId targetZone = ZoneId.of("Asia/Shanghai");
+
+        if (commitNames != null) {
+            for (String x : new ArrayList<>(commitNames)) {
+                if (x.equals("STAGEAREA")) {
+                    continue;
+                }
+                Commit currentCommit = readObject(join(GITLET_DIR, x, "data"), Commit.class);
+                System.out.println("===");
+                String Hash = String.format("commit %s", currentCommit.getHashMetadata());
+                System.out.println(Hash);
+                if (currentCommit.isMerge) {
+                    System.out.printf("Merge: %s %s%n", currentCommit.pervCommit.get(0).substring(0, 7), currentCommit.pervCommit.get(1).substring(0, 7));
+                }
+                Instant instant = currentCommit.date.toInstant();
+                ZonedDateTime zonedDate = instant.atZone(targetZone);
+                String formattedDate = dateFormatter.format(zonedDate);
+                System.out.print("Date: ");
+                System.out.println(formattedDate);
+                System.out.println(currentCommit.getMessage());
+                System.out.println();
+
+
             }
-            File commitIter = join(GITLET_DIR, x, "data");
-            Commit currCommit = readObject(commitIter, Commit.class);
-
-            System.out.println("===");
-            String Hash = String.format("Commit %s", currCommit.getHashMetadata());
-            System.out.println(Hash);
-            String date = String.format("Date: %s", currCommit.date);
-            System.out.println(date);
-            System.out.println(currCommit.getMessage());
-            System.out.println();
-
-
         }
 
     }
@@ -121,24 +124,29 @@ public class Repository {
     public static void findCommit(String message) {
         List<String> commitNames = plainDirnamesIn(GITLET_DIR);
 
-        for (String x : new ArrayList<>(commitNames)) {
-            if(x.equals("STAGEAREA")){
-                continue;
-            }
-            File commitIter = join(GITLET_DIR, x, "data");
-            Commit currCommit = readObject(commitIter, Commit.class);
-            if (currCommit.getMessage().equals(message)) {
-                System.out.println("===");
-                String Hash = String.format("Commit %s", currCommit.getHashMetadata());
-                System.out.println(Hash);
-                String date = String.format("Date: %s", currCommit.date);
-                System.out.println(date);
-                System.out.println(currCommit.getMessage());
-                System.out.println();
-            }
+        if (commitNames != null) {
+            for (String x : new ArrayList<>(commitNames)) {
+                if (x.equals("STAGEAREA")) {
+                    continue;
+                }
+                File commitIter = join(GITLET_DIR, x, "data");
+                Commit currCommit = readObject(commitIter, Commit.class);
+                if (currCommit.getMessage().equals(message)) {
+                    System.out.println("===");
+                    String Hash = String.format("Commit %s", currCommit.getHashMetadata());
+                    System.out.println(Hash);
+                    String date = String.format("Date: %s", currCommit.date);
+                    System.out.println(date);
+                    System.out.println(currCommit.getMessage());
+                    System.out.println();
+                    System.exit(0);
+                }
 
 
+            }
         }
+        System.out.print("Found no commit with that message.");
+        System.exit(0);
     }
 
     public static Commit getCurrentBranchMaster() {
@@ -158,7 +166,7 @@ public class Repository {
         initCommit.date = new Date(0);
         initCommit.timeStamp = String.valueOf(new Time(0));
         initCommit.hashMetadata = sha1(initCommit.getMessage(), initCommit.timeStamp);
-        currentBranchMaster=new branchHead();
+        currentBranchMaster = new branchHead();
         STAGING_AREA = new ArrayList<>();
         removedFiles = new ArrayList<>();
         HEAD = new ArrayList<>();
@@ -180,7 +188,7 @@ public class Repository {
         branches = new ArrayList<>();
 
         currentBranchMaster.hash = initCommit.getHashMetadata();
-        currentBranchMaster.branchName="master";
+        currentBranchMaster.branchName = "master";
         currentMasterTracked = new ArrayList<>();
 
         makeBranch("master");
@@ -196,8 +204,8 @@ public class Repository {
             System.out.println("No reason to remove the file.");
             System.exit(0);
         }
-        if(join(STAGINGFOLDER,arg).exists()){
-            join(STAGINGFOLDER,arg).delete();
+        if (join(STAGINGFOLDER, arg).exists()) {
+            join(STAGINGFOLDER, arg).delete();
             STAGING_AREA.remove(rmFile);
             currentMasterTracked.remove(arg);
             saveConfig();
@@ -228,14 +236,14 @@ public class Repository {
 
 
             File currentMasterFile = join(Repository.GITLET_DIR, Repository.currentBranchMaster.hash, arg);
-            File STAGINGFILE=join(STAGINGFOLDER,arg);
+            File STAGINGFILE = join(STAGINGFOLDER, arg);
             String argContent = readContentsAsString(f);
 
             if (currentMasterFile.exists()) {
 
                 String content = readContentsAsString(currentMasterFile);
                 String currentMasterHash = sha1(content);
-                if(removedFiles.contains(arg)){
+                if (removedFiles.contains(arg)) {
                     removedFiles.remove(arg);
                     currentMasterTracked.add(arg);
                 }
@@ -246,11 +254,9 @@ public class Repository {
                     System.exit(0);
                 }
             }
-            if(STAGINGFILE.exists())
-            {
-                String STAGINGContent=readContentsAsString(STAGINGFILE);
-                if(sha1(STAGINGContent).equals(sha1(argContent)))
-                {
+            if (STAGINGFILE.exists()) {
+                String STAGINGContent = readContentsAsString(STAGINGFILE);
+                if (sha1(STAGINGContent).equals(sha1(argContent))) {
                     for (stagedPair x : STAGING_AREA) {
                         if (x.equals(newFile)) {
                             if (x.markedToRemove) {
@@ -264,18 +270,17 @@ public class Repository {
                         }
                     }
 
-                }else{
-                    writeContents(STAGINGFILE,argContent);
+                } else {
+                    writeContents(STAGINGFILE, argContent);
                 }
                 saveConfig();
                 System.exit(0);
             }
             if (!STAGING_AREA.contains(newFile)) {
                 STAGING_AREA.add(newFile);
-                try
-                {
+                try {
                     STAGINGFILE.createNewFile();
-                    writeContents(STAGINGFILE,argContent);
+                    writeContents(STAGINGFILE, argContent);
                     saveConfig();
                     System.exit(0);
 
@@ -337,8 +342,8 @@ public class Repository {
         }
         currentBranchMaster.hash = newCommit.getHashMetadata();
         STAGING_AREA = new ArrayList<>();
-        removedFiles=new ArrayList<>();
-        for(File x:STAGINGFOLDER.listFiles()){
+        removedFiles = new ArrayList<>();
+        for (File x : STAGINGFOLDER.listFiles()) {
             x.delete();
         }
         try {
@@ -381,8 +386,7 @@ public class Repository {
         newBranch.hash = getCurrentBranchMaster().getHashMetadata();
         newBranch.branchName = arg;
         //currentBranchMaster = newBranch.hash;
-        for(branchHead x:branches)
-        {
+        for (branchHead x : branches) {
             if (x.branchName.equals(arg)) {
                 System.out.println("A branch with that name already exists.");
                 System.exit(0);
@@ -398,7 +402,7 @@ public class Repository {
         branches.sort(branchHead.BY_BRANCH_NAME);
         STAGING_AREA.sort(stagedPair.BY_NAME);
         for (branchHead x : branches) {
-            if (Objects.equals(x.branchName,currentBranchMaster.branchName)) {
+            if (Objects.equals(x.branchName, currentBranchMaster.branchName)) {
                 System.out.print("*");
                 System.out.print(x.branchName);
                 System.out.print("\n");
@@ -410,8 +414,7 @@ public class Repository {
         System.out.print("\n");
         System.out.println("=== Staged Files ===");
         for (stagedPair x : STAGING_AREA) {
-            if(!x.markedToRemove)
-            {
+            if (!x.markedToRemove) {
                 System.out.println(x.name);
             }
 
@@ -435,38 +438,38 @@ public class Repository {
         filesInCurrentCommit.remove("data");
         List<String> temp2 = plainFilenamesIn(CWD);
         ArrayList<String> filesInCWD = new ArrayList<>(temp2);
-        List<String> temp3=plainFilenamesIn(STAGINGFOLDER);
-        ArrayList<String> filesStaged=new ArrayList<>(temp3);
+        List<String> temp3 = plainFilenamesIn(STAGINGFOLDER);
+        ArrayList<String> filesStaged = new ArrayList<>(temp3);
         if (filesInCurrentCommit != null && filesInCWD != null) {
 
             for (String x : filesInCWD) {
-                if(filesInCurrentCommit.contains(x)){
-                    String fileContent=readContentsAsString(join(GITLET_DIR, currentBranchMaster.hash,x));
-                    String fileInCWD=readContentsAsString(join(CWD,x));
-                    if(!sha1(fileInCWD).equals(sha1(fileContent))){
-                        if(!filesStaged.contains(x)){
+                if (filesInCurrentCommit.contains(x)) {
+                    String fileContent = readContentsAsString(join(GITLET_DIR, currentBranchMaster.hash, x));
+                    String fileInCWD = readContentsAsString(join(CWD, x));
+                    if (!sha1(fileInCWD).equals(sha1(fileContent))) {
+                        if (!filesStaged.contains(x)) {
                             System.out.print(x);
                             System.out.print(" (modified)\n");
                             continue;
                         }
                     }
                 }
-                if(filesStaged.contains(x)){
-                    if(!join(CWD,x).exists()){
+                if (filesStaged.contains(x)) {
+                    if (!join(CWD, x).exists()) {
                         System.out.print(x);
                         System.out.print(" (deleted)\n");
                         continue;
                     }
-                    String fileInCWD=readContentsAsString(join(CWD,x));
-                    String fileStaged=readContentsAsString(join(STAGINGFOLDER,x));
-                    if(!sha1(fileInCWD).equals(sha1(fileStaged))){
+                    String fileInCWD = readContentsAsString(join(CWD, x));
+                    String fileStaged = readContentsAsString(join(STAGINGFOLDER, x));
+                    if (!sha1(fileInCWD).equals(sha1(fileStaged))) {
                         System.out.print(x);
                         System.out.print(" (modified)\n");
                         continue;
                     }
                 }
-                if(filesInCurrentCommit.contains(x)&&!join(CWD,x).exists()){
-                    if(!removedFiles.contains(x)){
+                if (filesInCurrentCommit.contains(x) && !join(CWD, x).exists()) {
+                    if (!removedFiles.contains(x)) {
                         System.out.print(x);
                         System.out.print(" (deleted)\n");
                     }
@@ -477,7 +480,7 @@ public class Repository {
         System.out.println("=== Untracked Files ===");
         if (filesInCWD != null) {
             for (String x : filesInCWD) {
-                if (!currentMasterTracked.contains(x)&&!filesStaged.contains(x)) {
+                if (!currentMasterTracked.contains(x) && !filesStaged.contains(x)) {
                     System.out.println(x);
 
                 }
@@ -502,9 +505,9 @@ public class Repository {
     }
 
     public static void checkOutFile(String commit, String arg) {
-        if(commit.length()<10){
-            commit=checkShortUid(commit);
-        }
+
+        commit = checkShortUid(commit);
+
         if (!join(GITLET_DIR, commit).exists()) {
             System.out.println("No commit with that id exists.");
             System.exit(0);
@@ -541,17 +544,17 @@ public class Repository {
             System.out.println("No such branch exists.");
             System.exit(0);
         }
-        if (commit.equals(currentBranchMaster.hash)&&name.equals(currentBranchMaster.branchName)) {
+        if (commit.equals(currentBranchMaster.hash) && name.equals(currentBranchMaster.branchName)) {
             System.out.println("No need to checkout the current branch.");
             System.exit(0);
         }
         File fileToCheck = join(GITLET_DIR, commit);
         Commit thisBranch = readObject(join(fileToCheck, "data"), Commit.class);
-        List<String> temp=plainFilenamesIn(fileToCheck);
+        List<String> temp = plainFilenamesIn(fileToCheck);
         ArrayList<String> filesInCommit = new ArrayList<>(temp);
         filesInCommit.remove("data");
         for (String x : filesInCommit) {
-            if (currentMasterTracked.contains(x)) {
+            if (!currentMasterTracked.contains(x)) {
                 System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
                 System.exit(0);
             }
@@ -573,7 +576,7 @@ public class Repository {
         }
         currentMasterTracked = thisBranch.tracked;
         currentBranchMaster.hash = commit;
-        currentBranchMaster.branchName=name;
+        currentBranchMaster.branchName = name;
         STAGING_AREA = new ArrayList<>();
         saveConfig();
     }
@@ -597,12 +600,13 @@ public class Repository {
     }
 
     public static void reset(String commitHash) {
-        List<String> dirNames= plainDirnamesIn(GITLET_DIR);
+        commitHash = checkShortUid(commitHash);
+        List<String> dirNames = plainDirnamesIn(GITLET_DIR);
         for (String x : new ArrayList<>(dirNames)) {
             if (x.equals(commitHash)) {
 
-                for(branchHead y:branches){
-                    if(y.hash.equals(currentBranchMaster.hash));
+                for (branchHead y : branches) {
+                    if (y.hash.equals(currentBranchMaster.hash)) ;
                     currentBranchMaster.hash = commitHash;
                     checkOutAllFile(y.branchName);
                     saveConfig();
@@ -777,9 +781,11 @@ public class Repository {
         stagedPair() {
 
         }
-        stagedPair(String x){
-            name=x;
+
+        stagedPair(String x) {
+            name = x;
         }
+
         @Override
         public boolean equals(Object o) {
             if (o instanceof stagedPair) {
@@ -803,7 +809,7 @@ public class Repository {
         public boolean equals(Object o) {
             if (o instanceof branchHead) {
                 branchHead k = (branchHead) o;
-                return this.hash.equals(k.hash)&&this.branchName.equals(k.branchName);
+                return this.hash.equals(k.hash) && this.branchName.equals(k.branchName);
             } else if (o instanceof String) {
                 return this.branchName.equals(o);
             }
