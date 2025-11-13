@@ -551,12 +551,13 @@ public class Repository {
             System.exit(0);
         }
         File fileToCheck = join(GITLET_DIR, commit);
+
         Commit thisBranch = readObject(join(fileToCheck, "data"), Commit.class);
         List<String> temp = plainFilenamesIn(fileToCheck);
         ArrayList<String> filesInCommit = new ArrayList<>(temp);
         filesInCommit.remove("data");
         for (String x : filesInCommit) {
-            if (!currentMasterTracked.contains(x)) {
+            if (!currentMasterTracked.contains(x)&&join(CWD,x).exists()) {
                 System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
                 System.exit(0);
             }
