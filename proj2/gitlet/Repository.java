@@ -166,6 +166,7 @@ public class Repository {
         initCommit.date = new Date(0);
         initCommit.timeStamp = String.valueOf(new Time(0));
         initCommit.hashMetadata = sha1(initCommit.getMessage(), initCommit.timeStamp);
+        currentMasterTracked=new ArrayList<>();
         currentBranchMaster = new branchHead();
         STAGING_AREA = new ArrayList<>();
         removedFiles = new ArrayList<>();
@@ -330,7 +331,8 @@ public class Repository {
                 }
             }
         }
-        newCommit.tracked = currentMasterTracked;
+
+        newCommit.tracked = new ArrayList<>(currentMasterTracked);
         if (branches != null) {
             for (branchHead x : branches) {
                 if (x.hash.equals(currentBranchMaster.hash)) {
@@ -605,13 +607,12 @@ public class Repository {
         for (String x : new ArrayList<>(dirNames)) {
             if (x.equals(commitHash)) {
 
-                for (branchHead y : branches) {
-                    if (y.hash.equals(currentBranchMaster.hash)) ;
+
                     currentBranchMaster.hash = commitHash;
-                    checkOutAllFile(y.branchName);
+                    checkOutAllFile(currentBranchMaster.branchName);
                     saveConfig();
                     System.exit(0);
-                }
+
 
 
             }

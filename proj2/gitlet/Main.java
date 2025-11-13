@@ -24,9 +24,11 @@ public class Main {
         if (!Repository.GITLET_DIR.exists()&& !Objects.equals(args[0], "init")) {
             System.out.print("Not in an initialized Gitlet directory.");
             return;
+        }else{
+            Repository.readConfig();
         }
         String firstArg = args[0];
-        Repository.readConfig();
+
         switch (firstArg) {
             case "init":
                 if (args.length != 1) {
