@@ -136,7 +136,7 @@ public class Repository {
                 if (currCommit.getMessage().equals(message)) {
                     cnt++;
 
-                    String hash = String.format("Commit %s", currCommit.getHashMetadata());
+                    String hash = String.format("%s", currCommit.getHashMetadata());
                     System.out.println(hash);
 
 
@@ -391,7 +391,7 @@ public class Repository {
 
     public static void makeBranch(String arg) {
         branchHead newBranch = new branchHead();
-        newBranch.hash = getCurrentBranchMaster().getHashMetadata();
+        newBranch.hash = currentBranchMaster.hash;
         newBranch.branchName = arg;
         //currentBranchMaster = newBranch.hash;
         for (branchHead x : branches) {
@@ -617,19 +617,13 @@ public class Repository {
         List<String> dirNames = plainDirnamesIn(GITLET_DIR);
         for (String x : new ArrayList<>(dirNames)) {
             if (x.equals(commitHash)) {
-
-
                 currentBranchMaster.hash = commitHash;
                 checkOutAllFile(currentBranchMaster.branchName);
                 saveConfig();
                 System.exit(0);
-
-
             }
         }
         System.out.println("No commit with that id exists.");
-
-
     }
 
     public static void log() {
