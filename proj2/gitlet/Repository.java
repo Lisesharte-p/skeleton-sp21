@@ -644,10 +644,11 @@ public class Repository {
             System.out.println(formattedDate);
             System.out.println(currentCommit.getMessage());
             System.out.println();
-            if (currentCommit.pervCommit.isEmpty()) {
-                break;
-            }
+
             currentCommit = currentCommit.getPervCommit();
+            if(currentCommit == null){
+                System.exit(0);
+            }
         }
     }
 

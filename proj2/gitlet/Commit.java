@@ -49,6 +49,9 @@ public class Commit implements Serializable {
     }
 
     public Commit getPervCommit() {
+        if(pervCommit.isEmpty()){
+            return null;
+        }
         File perv = join(Repository.GITLET_DIR, pervCommit.get(0), "data");
         if (!perv.exists()) {
             return null;
