@@ -126,7 +126,7 @@ public class Repository {
         List<String> commitNames = plainDirnamesIn(GITLET_DIR);
         int cnt = 0;
         if (commitNames != null) {
-            cnt++;
+
             for (String x : new ArrayList<>(commitNames)) {
                 if (x.equals("STAGEAREA")) {
                     continue;
@@ -134,13 +134,11 @@ public class Repository {
                 File commitIter = join(GITLET_DIR, x, "data");
                 Commit currCommit = readObject(commitIter, Commit.class);
                 if (currCommit.getMessage().equals(message)) {
-                    System.out.println("===");
+                    cnt++;
+
                     String hash = String.format("Commit %s", currCommit.getHashMetadata());
                     System.out.println(hash);
-                    String date = String.format("Date: %s", currCommit.date);
-                    System.out.println(date);
-                    System.out.println(currCommit.getMessage());
-                    System.out.println();
+
 
                 }
 
