@@ -139,7 +139,7 @@ public class Repository {
                     System.out.println(date);
                     System.out.println(currCommit.getMessage());
                     System.out.println();
-                    System.exit(0);
+
                 }
 
 
@@ -562,6 +562,11 @@ public class Repository {
                 System.exit(0);
             }
         }
+        for(String x:new ArrayList<>(plainFilenamesIn(CWD))){
+            if(!filesInCommit.contains(x)&&currentMasterTracked.contains(x)){
+                join(CWD,x).delete();
+            }
+        }
         for (String x : filesInCommit) {
             File CWDFILE = join(CWD, x);
             if (!CWDFILE.exists()) {
@@ -576,6 +581,9 @@ public class Repository {
                 String content = readContentsAsString(join(fileToCheck, x));
                 writeObject(CWDFILE, content);
             }
+        }
+        for(String x:new ArrayList<>(plainFilenamesIn(STAGINGFOLDER))){
+            join(STAGINGFOLDER,x).delete();
         }
         currentMasterTracked = thisBranch.tracked;
         currentBranchMaster.hash = commit;
