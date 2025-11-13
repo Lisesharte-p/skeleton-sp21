@@ -1,9 +1,4 @@
 package gitlet;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 
 import java.util.Objects;
 
@@ -82,15 +77,18 @@ public class Main {
 
                 if (Objects.equals(args[1], "--")) {
                     if (args.length == 3) {
-                        Repository.checkOutFile(Repository.currentBranchMaster, args[2]);
+                        Repository.checkOutFile(Repository.currentBranchMaster.hash, args[2]);
                     } else {
                         System.out.println("Incorrect operands.");
                         System.exit(0);
                     }
-                } else if (args.length == 4) {
+                } else if (args.length == 4&&args[2].equals("--")) {
                     Repository.checkOutFile(args[1], args[3]);
                 } else if (args.length == 2) {
                     Repository.checkOutAllFile(args[1]);
+                }else{
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
                 }
                 break;
             case "branch":
