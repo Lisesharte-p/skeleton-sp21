@@ -3,29 +3,19 @@ package gitlet;
 // TODO: any imports you need here
 
 
-
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import static gitlet.Utils.*;
-import static gitlet.Utils.readContentsAsString;
 
-/**
- * Represents a gitlet commit object.
- *  TODO: It's a good idea to give a description here of what else this Class
- *  does at a high level.
- *
- * @author TODO
- */
+import static gitlet.Utils.*;
+
+
 public class Commit implements Serializable {
-    /**
-     * TODO: add instance variables here.
-     * <p>
-     * ArrayList all instance variables of the Commit class here with a useful
-     * comment above them describing what that variable represents and how that
-     * variable is used. We've provided one example for `message`.
-     */
+
+    private final String message;
+    private final ArrayList<String> fileHash;
+
     public boolean isMerge;
     public ArrayList<String> files;
     public ArrayList<String> pervCommit;
@@ -33,25 +23,19 @@ public class Commit implements Serializable {
     public Date date;
     public String hashMetadata;
     public String timeStamp;
-    /**
-     * The message of this Commit.
-     */
-    private final String message;
-    private final ArrayList<String> fileHash;
-    /* TODO: fill in the rest of this class. */
 
     Commit(String message, ArrayList<String> files) {
         this.message = message;
         this.date = new Date();
         fileHash = new ArrayList<>();
-        this.tracked=new ArrayList<>();
-        this.files=new ArrayList<>();
-        this.pervCommit=new ArrayList<>();
+        this.tracked = new ArrayList<>();
+        this.files = new ArrayList<>();
+        this.pervCommit = new ArrayList<>();
         this.timeStamp = String.valueOf(new Date());
         if (files != null) {
             for (String f : files) {
                 this.files.add(f);
-                String newfile=readContentsAsString(new File(f));
+                String newfile = readContentsAsString(new File(f));
                 this.fileHash.add(sha1(newfile));
             }
 
@@ -65,17 +49,18 @@ public class Commit implements Serializable {
     }
 
     public Commit getPervCommit() {
-        File perv = join(Repository.GITLET_DIR, pervCommit.get(0),"data");
-        if(!perv.exists()){
+        File perv = join(Repository.GITLET_DIR, pervCommit.get(0), "data");
+        if (!perv.exists()) {
             return null;
         }
         return readObject(perv, Commit.class);
     }
 
-    public boolean checkChanged(){
-        Commit thePervCommit=getPervCommit();
+    public boolean checkChanged() {
+        Commit thePervCommit = getPervCommit();
         return !thePervCommit.fileHash.equals(fileHash);
     }
+
     public String getHashMetadata() {
         return this.hashMetadata;
     }

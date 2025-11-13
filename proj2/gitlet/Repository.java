@@ -13,19 +13,11 @@ import java.util.*;
 
 import static gitlet.Utils.*;
 
-// TODO: any imports you need here
 
-/**
- * Represents a gitlet repository.
- *  TODO: It's a good idea to give a description here of what else this Class
- *  does at a high level.
- *
- * @author TODO
- */
 public class Repository {
     public static final File CWD = new File(System.getProperty("user.dir"));
     public static final File GITLET_DIR = join(CWD, ".gitlet");
-    static final File HEADfile = join(GITLET_DIR, "HEAD");
+    static final File HEADFILE = join(GITLET_DIR, "HEAD");
     static final File MASTER = join(GITLET_DIR, "Master");
     static final File TRACKING = join(GITLET_DIR, "TRACKING");
     static final File STAGING = join(GITLET_DIR, "STAGING");
@@ -38,9 +30,9 @@ public class Repository {
             return !(new File(dir, name).isFile()) && !name.equals("STAGINGAREA");
         }//changed for returning directory(added "!")
     };
-    public static ArrayList<String> HEAD;
-    public static ArrayList<String> currentMasterTracked;
-    public static ArrayList<String> removedFiles;
+    static ArrayList<String> HEAD;
+    static ArrayList<String> currentMasterTracked;
+    static ArrayList<String> removedFiles;
     static ArrayList<branchHead> branches;
     static branchHead currentBranchMaster;
     static ArrayList<stagedPair> STAGING_AREA;
@@ -61,8 +53,8 @@ public class Repository {
     }
 
     public static void readConfig() {
-        if (HEADfile.exists() && MASTER.exists() && TRACKING.exists() && STAGING.exists()) {
-            HEAD = readObject(HEADfile, ArrayList.class);
+        if (HEADFILE.exists() && MASTER.exists() && TRACKING.exists() && STAGING.exists()) {
+            HEAD = readObject(HEADFILE, ArrayList.class);
             currentBranchMaster = readObject(MASTER, branchHead.class);
             currentMasterTracked = readObject(TRACKING, ArrayList.class);
             STAGING_AREA = readObject(STAGING, ArrayList.class);
@@ -73,8 +65,13 @@ public class Repository {
     }
 
     public static void saveConfig() {
-        if (HEADfile.exists() && MASTER.exists() && TRACKING.exists() && STAGING.exists() && RMFILE.exists()) {
-            writeObject(HEADfile, HEAD);
+        if (HEADFILE.exists()
+                && MASTER.exists()
+                && TRACKING.exists()
+                && STAGING.exists()
+                && RMFILE.exists())
+        {
+            writeObject(HEADFILE, HEAD);
             writeObject(MASTER, currentBranchMaster);
             writeObject(TRACKING, currentMasterTracked);
             writeObject(STAGING, STAGING_AREA);
@@ -92,7 +89,8 @@ public class Repository {
             commitNames.sort(Comparator.naturalOrder());
         }
 
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEE MMM d HH:mm:ss yyyy Z", Locale.US);
+        DateTimeFormatter dateFormatter =
+                DateTimeFormatter.ofPattern("EEE MMM d HH:mm:ss yyyy Z", Locale.US);
         ZoneId targetZone = ZoneId.of("Asia/Shanghai");
 
         if (commitNames != null) {
@@ -100,12 +98,15 @@ public class Repository {
                 if (x.equals("STAGEAREA")) {
                     continue;
                 }
-                Commit currentCommit = readObject(join(GITLET_DIR, x, "data"), Commit.class);
+                Commit currentCommit = readObject(
+                        join(GITLET_DIR, x, "data"), Commit.class);
                 System.out.println("===");
-                String Hash = String.format("commit %s", currentCommit.getHashMetadata());
-                System.out.println(Hash);
+                String hash = String.format("commit %s", currentCommit.getHashMetadata());
+                System.out.println(hash);
                 if (currentCommit.isMerge) {
-                    System.out.printf("Merge: %s %s%n", currentCommit.pervCommit.get(0).substring(0, 7), currentCommit.pervCommit.get(1).substring(0, 7));
+                    System.out.printf("Merge: %s %s%n",
+                            currentCommit.pervCommit.get(0).substring(0, 7),
+                            currentCommit.pervCommit.get(1).substring(0, 7));
                 }
                 Instant instant = currentCommit.date.toInstant();
                 ZonedDateTime zonedDate = instant.atZone(targetZone);
@@ -123,8 +124,9 @@ public class Repository {
 
     public static void findCommit(String message) {
         List<String> commitNames = plainDirnamesIn(GITLET_DIR);
-
+        int cnt = 0;
         if (commitNames != null) {
+            cnt++;
             for (String x : new ArrayList<>(commitNames)) {
                 if (x.equals("STAGEAREA")) {
                     continue;
@@ -133,8 +135,8 @@ public class Repository {
                 Commit currCommit = readObject(commitIter, Commit.class);
                 if (currCommit.getMessage().equals(message)) {
                     System.out.println("===");
-                    String Hash = String.format("Commit %s", currCommit.getHashMetadata());
-                    System.out.println(Hash);
+                    String hash = String.format("Commit %s", currCommit.getHashMetadata());
+                    System.out.println(hash);
                     String date = String.format("Date: %s", currCommit.date);
                     System.out.println(date);
                     System.out.println(currCommit.getMessage());
@@ -145,18 +147,22 @@ public class Repository {
 
             }
         }
-        System.out.print("Found no commit with that message.");
+        if (cnt == 0) {
+            System.out.print("Found no commit with that message.");
+        }
         System.exit(0);
     }
 
     public static Commit getCurrentBranchMaster() {
-        return readObject(join(GITLET_DIR, currentBranchMaster.hash, "data"), Commit.class);
+        return readObject(join(GITLET_DIR,
+                currentBranchMaster.hash, "data"), Commit.class);
     }
 
     public static void initCommit(String message) {
         File newRepo = GITLET_DIR;
         if (newRepo.exists()) {
-            System.out.println("A Gitlet version-control system already exists in the current directory.");
+            System.out.println("A Gitlet version-control system already" +
+                    " exists in the current directory.");
             return;
         }
 
@@ -166,7 +172,7 @@ public class Repository {
         initCommit.date = new Date(0);
         initCommit.timeStamp = String.valueOf(new Time(0));
         initCommit.hashMetadata = sha1(initCommit.getMessage(), initCommit.timeStamp);
-        currentMasterTracked=new ArrayList<>();
+        currentMasterTracked = new ArrayList<>();
         currentBranchMaster = new branchHead();
         STAGING_AREA = new ArrayList<>();
         removedFiles = new ArrayList<>();
@@ -175,7 +181,7 @@ public class Repository {
         try {
             MASTER.createNewFile();
             TRACKING.createNewFile();
-            HEADfile.createNewFile();
+            HEADFILE.createNewFile();
             STAGING.createNewFile();
             BRANCHES.createNewFile();
             RMFILE.createNewFile();
@@ -214,10 +220,10 @@ public class Repository {
         }
         if (Repository.currentMasterTracked.contains(arg)) {
             Repository.currentMasterTracked.remove(arg);
-            File CWDfile = join(Repository.CWD, arg);
+            File workingFile = join(Repository.CWD, arg);
             removedFiles.add(arg);
             STAGING_AREA.add(rmFile);
-            CWDfile.delete();
+            workingFile.delete();
             saveConfig();
 
             System.exit(0);
@@ -236,8 +242,9 @@ public class Repository {
             }
 
 
-            File currentMasterFile = join(Repository.GITLET_DIR, Repository.currentBranchMaster.hash, arg);
-            File STAGINGFILE = join(STAGINGFOLDER, arg);
+            File currentMasterFile = join(Repository.GITLET_DIR,
+                    Repository.currentBranchMaster.hash, arg);
+            File stageFile = join(STAGINGFOLDER, arg);
             String argContent = readContentsAsString(f);
 
             if (currentMasterFile.exists()) {
@@ -255,9 +262,9 @@ public class Repository {
                     System.exit(0);
                 }
             }
-            if (STAGINGFILE.exists()) {
-                String STAGINGContent = readContentsAsString(STAGINGFILE);
-                if (sha1(STAGINGContent).equals(sha1(argContent))) {
+            if (stageFile.exists()) {
+                String stageContent = readContentsAsString(stageFile);
+                if (sha1(stageContent).equals(sha1(argContent))) {
                     for (stagedPair x : STAGING_AREA) {
                         if (x.equals(newFile)) {
                             if (x.markedToRemove) {
@@ -265,14 +272,14 @@ public class Repository {
                                 break;
                             } else {
                                 STAGING_AREA.remove(x);
-                                STAGINGFILE.delete();
+                                stageFile.delete();
                                 break;
                             }
                         }
                     }
 
                 } else {
-                    writeContents(STAGINGFILE, argContent);
+                    writeContents(stageFile, argContent);
                 }
                 saveConfig();
                 System.exit(0);
@@ -280,8 +287,8 @@ public class Repository {
             if (!STAGING_AREA.contains(newFile)) {
                 STAGING_AREA.add(newFile);
                 try {
-                    STAGINGFILE.createNewFile();
-                    writeContents(STAGINGFILE, argContent);
+                    stageFile.createNewFile();
+                    writeContents(stageFile, argContent);
                     saveConfig();
                     System.exit(0);
 
@@ -321,7 +328,8 @@ public class Repository {
                         writeContents(newFile, createFile);
                     } else {
                         Commit perv = newCommit.getPervCommit();
-                        String Content = readContentsAsString(join(GITLET_DIR, perv.getHashMetadata(), fs));
+                        String Content = readContentsAsString(join(GITLET_DIR,
+                                perv.getHashMetadata(), fs));
                         File newFile = join(f, fs);
                         newFile.createNewFile();
                         writeContents(newFile, Content);
@@ -356,7 +364,7 @@ public class Repository {
         saveConfig();
         writeObject(c, newCommit);
         writeObject(MASTER, currentBranchMaster);
-        writeObject(HEADfile, HEAD);
+        writeObject(HEADFILE, HEAD);
         writeObject(STAGING, STAGING_AREA);
         writeObject(TRACKING, currentMasterTracked);
 
@@ -432,10 +440,7 @@ public class Repository {
         }
         System.out.println();
         System.out.print("=== Modifications Not Staged For Commit ===\n");
-
         List<String> temp1 = plainFilenamesIn(join(GITLET_DIR, currentBranchMaster.hash));
-
-
         ArrayList<String> filesInCurrentCommit = new ArrayList<>(temp1);
         filesInCurrentCommit.remove("data");
         List<String> temp2 = plainFilenamesIn(CWD);
@@ -443,7 +448,6 @@ public class Repository {
         List<String> temp3 = plainFilenamesIn(STAGINGFOLDER);
         ArrayList<String> filesStaged = new ArrayList<>(temp3);
         if (filesInCurrentCommit != null && filesInCWD != null) {
-
             for (String x : filesInCWD) {
                 if (filesInCurrentCommit.contains(x)) {
                     String fileContent = readContentsAsString(join(GITLET_DIR, currentBranchMaster.hash, x));
@@ -557,14 +561,14 @@ public class Repository {
         ArrayList<String> filesInCommit = new ArrayList<>(temp);
         filesInCommit.remove("data");
         for (String x : filesInCommit) {
-            if (!currentMasterTracked.contains(x)&&join(CWD,x).exists()) {
+            if (!currentMasterTracked.contains(x) && join(CWD, x).exists()) {
                 System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
                 System.exit(0);
             }
         }
-        for(String x:new ArrayList<>(plainFilenamesIn(CWD))){
-            if(!filesInCommit.contains(x)&&currentMasterTracked.contains(x)){
-                join(CWD,x).delete();
+        for (String x : new ArrayList<>(plainFilenamesIn(CWD))) {
+            if (!filesInCommit.contains(x) && currentMasterTracked.contains(x)) {
+                join(CWD, x).delete();
             }
         }
         for (String x : filesInCommit) {
@@ -582,8 +586,8 @@ public class Repository {
                 writeObject(CWDFILE, content);
             }
         }
-        for(String x:new ArrayList<>(plainFilenamesIn(STAGINGFOLDER))){
-            join(STAGINGFOLDER,x).delete();
+        for (String x : new ArrayList<>(plainFilenamesIn(STAGINGFOLDER))) {
+            join(STAGINGFOLDER, x).delete();
         }
         currentMasterTracked = thisBranch.tracked;
         currentBranchMaster.hash = commit;
@@ -617,11 +621,10 @@ public class Repository {
             if (x.equals(commitHash)) {
 
 
-                    currentBranchMaster.hash = commitHash;
-                    checkOutAllFile(currentBranchMaster.branchName);
-                    saveConfig();
-                    System.exit(0);
-
+                currentBranchMaster.hash = commitHash;
+                checkOutAllFile(currentBranchMaster.branchName);
+                saveConfig();
+                System.exit(0);
 
 
             }
@@ -803,7 +806,7 @@ public class Repository {
                 return this.name.equals(k.name);
             }
             if (o instanceof String) {
-                return o.equals(name)&&!this.markedToRemove;
+                return o.equals(name) && !this.markedToRemove;
             }
             return false;
         }
