@@ -793,7 +793,7 @@ public class Repository {
                 return this.name.equals(k.name);
             }
             if (o instanceof String) {
-                return o.equals(name);
+                return o.equals(name)&&!this.markedToRemove;
             }
             return false;
         }
