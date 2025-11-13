@@ -19,7 +19,12 @@ public class Main {
         if (args.length == 0) {
             System.out.print("Please enter a command.\n");
 
-            return;}
+            return;
+        }
+        if (!Repository.GITLET_DIR.exists()&& !Objects.equals(args[0], "init")) {
+            System.out.print("Not in an initialized Gitlet directory.");
+            return;
+        }
         String firstArg = args[0];
         Repository.readConfig();
         switch (firstArg) {
@@ -38,7 +43,7 @@ public class Main {
                 Repository.addFile(args[1]);
                 break;
             case "commit":
-                if (args.length == 1|| Objects.equals(args[1], "")) {
+                if (args.length == 1 || Objects.equals(args[1], "")) {
                     System.out.println("Please enter a commit message.");
                     System.exit(0);
                 }
@@ -46,7 +51,7 @@ public class Main {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
-                Repository.makeCommit(args[1],false,null);
+                Repository.makeCommit(args[1], false, null);
                 break;
             case "rm":
                 if (args.length != 2) {
@@ -82,11 +87,11 @@ public class Main {
                         System.out.println("Incorrect operands.");
                         System.exit(0);
                     }
-                } else if (args.length == 4&&args[2].equals("--")) {
+                } else if (args.length == 4 && args[2].equals("--")) {
                     Repository.checkOutFile(args[1], args[3]);
                 } else if (args.length == 2) {
                     Repository.checkOutAllFile(args[1]);
-                }else{
+                } else {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
@@ -110,7 +115,8 @@ public class Main {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
-                Repository.reset(args[1]);
+                String arg = Repository.checkShortUid(args[1]);
+                Repository.reset(arg);
                 break;
             case "merge":
                 if (args.length != 2) {

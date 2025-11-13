@@ -55,12 +55,16 @@ public class Repository {
 
     public static String checkShortUid(String shortUid){
         List<String>temp=plainDirnamesIn(GITLET_DIR);
-        for(String x:new ArrayList<>(temp)){
-            if(x.substring(0,7).equals(shortUid)){
-                return x;
+        if(shortUid.length()<10)
+        {
+            for (String x : new ArrayList<>(temp)) {
+                if (x.substring(0, 7).equals(shortUid)) {
+                    return x;
+                }
             }
+            return "-1";
         }
-        return "-1";
+        return shortUid;
     }
     public static void readConfig() {
         if (HEADfile.exists() && MASTER.exists() && TRACKING.exists() && STAGING.exists()) {
@@ -118,6 +122,9 @@ public class Repository {
         List<String> commitNames = plainDirnamesIn(GITLET_DIR);
 
         for (String x : new ArrayList<>(commitNames)) {
+            if(x.equals("STAGEAREA")){
+                continue;
+            }
             File commitIter = join(GITLET_DIR, x, "data");
             Commit currCommit = readObject(commitIter, Commit.class);
             if (currCommit.getMessage().equals(message)) {
@@ -374,9 +381,12 @@ public class Repository {
         newBranch.hash = getCurrentBranchMaster().getHashMetadata();
         newBranch.branchName = arg;
         //currentBranchMaster = newBranch.hash;
-        if(branches.contains(arg)){
-            System.out.println("A branch with that name already exists.");
-            System.exit(0);
+        for(branchHead x:branches)
+        {
+            if (x.branchName.equals(arg)) {
+                System.out.println("A branch with that name already exists.");
+                System.exit(0);
+            }
         }
         branches.add(newBranch);
         writeObject(BRANCHES, branches);
@@ -572,7 +582,7 @@ public class Repository {
 
         for (branchHead x : branches) {
             if (x.branchName.equals(name)) {
-                if (!x.hash.equals(currentBranchMaster.hash)) {
+                if (!x.branchName.equals(currentBranchMaster.branchName)) {
                     branches.remove(x);
                     saveConfig();
                     System.exit(0);
@@ -587,8 +597,8 @@ public class Repository {
     }
 
     public static void reset(String commitHash) {
-        ArrayList<String> dirNames= (ArrayList<String>) plainDirnamesIn(GITLET_DIR);
-        for (String x : dirNames) {
+        List<String> dirNames= plainDirnamesIn(GITLET_DIR);
+        for (String x : new ArrayList<>(dirNames)) {
             if (x.equals(commitHash)) {
 
                 for(branchHead y:branches){
@@ -793,7 +803,7 @@ public class Repository {
         public boolean equals(Object o) {
             if (o instanceof branchHead) {
                 branchHead k = (branchHead) o;
-                return this.hash.equals(k.hash);
+                return this.hash.equals(k.hash)&&this.branchName.equals(k.branchName);
             } else if (o instanceof String) {
                 return this.branchName.equals(o);
             }
