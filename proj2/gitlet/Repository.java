@@ -658,7 +658,7 @@ public class Repository {
                     System.out.print("Cannot merge a branch with itself.");
                     System.exit(0);
                 }
-                break;
+
             }
         }
         if(!found){
