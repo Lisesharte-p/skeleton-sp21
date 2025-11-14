@@ -603,7 +603,7 @@ public class Repository {
 
         for(branchHead x:branches){
             if(x.branchName.equals(currentBranchMaster.branchName)){
-                currentBranchMaster.hash = commitHash;
+
                 x.hash=commitHash;
                 checkOutAllFile(currentBranchMaster.branchName);
                 saveConfig();
