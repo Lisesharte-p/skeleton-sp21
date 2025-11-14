@@ -600,18 +600,16 @@ public class Repository {
             System.out.println("No commit with that id exists.");
             System.exit(0);
         }
-        currentBranchMaster.hash = commitHash;
-        checkOutAllFile(currentBranchMaster.branchName);
+
         for(branchHead x:branches){
             if(x.branchName.equals(currentBranchMaster.branchName)){
+                currentBranchMaster.hash = commitHash;
                 x.hash=commitHash;
+                checkOutAllFile(currentBranchMaster.branchName);
+                saveConfig();
+                System.exit(0);
             }
         }
-        saveConfig();
-
-
-
-
     }
 
     public static void log() {
