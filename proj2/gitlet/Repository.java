@@ -578,7 +578,6 @@ public class Repository {
     }
 
     public static void rmBranch(String name) {
-
         for (branchHead x : branches) {
             if (x.branchName.equals(name)) {
                 if (!x.branchName.equals(currentBranchMaster.branchName)) {
@@ -597,16 +596,22 @@ public class Repository {
 
     public static void reset(String commitHash) {
         commitHash = checkShortUid(commitHash);
-        List<String> dirNames = plainDirnamesIn(GITLET_DIR);
-        for (String x : new ArrayList<>(dirNames)) {
-            if (x.equals(commitHash)) {
-                currentBranchMaster.hash = commitHash;
-                checkOutAllFile(currentBranchMaster.branchName);
-                saveConfig();
-                System.exit(0);
+        if(commitHash.equals("-1")){
+            System.out.println("No commit with that id exists.");
+            System.exit(0);
+        }
+        currentBranchMaster.hash = commitHash;
+        checkOutAllFile(currentBranchMaster.branchName);
+        for(branchHead x:branches){
+            if(x.branchName.equals(currentBranchMaster.branchName)){
+                x.hash=commitHash;
             }
         }
-        System.out.println("No commit with that id exists.");
+        saveConfig();
+
+
+
+
     }
 
     public static void log() {
