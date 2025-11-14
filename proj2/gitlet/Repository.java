@@ -527,6 +527,7 @@ public class Repository {
             }
         }
 
+
         if (commit == null) {
             System.out.println("No such branch exists.");
             System.exit(0);
@@ -596,11 +597,10 @@ public class Repository {
 
     public static void reset(String commitHash) {
         commitHash = checkShortUid(commitHash);
-        if(commitHash.equals("-1")){
+        if(!join(GITLET_DIR,commitHash).exists()){
             System.out.println("No commit with that id exists.");
             System.exit(0);
         }
-
         for(branchHead x:branches){
             if(x.branchName.equals(currentBranchMaster.branchName)){
 
@@ -641,18 +641,16 @@ public class Repository {
     }
 
     public static void merge(String branchName) {
-        if (!branches.contains(branchName)) {
-            System.out.print("A branch with that name does not exist.");
-            System.exit(0);
-        }
         if (!STAGING_AREA.isEmpty()) {
             System.out.print("You have uncommitted changes.");
         }
         Commit givenBranch = null;
         String currentBranchMasterName = "";
+        boolean found=false;
         for (branchHead x : branches) {
             if (x.branchName.equals(branchName)) {
                 givenBranch = readObject(join(GITLET_DIR, x.hash, "data"), Commit.class);
+                found=true;
             }
             if (x.hash.equals(currentBranchMaster.hash)) {
                 currentBranchMasterName = x.branchName;
@@ -662,6 +660,10 @@ public class Repository {
                 }
                 break;
             }
+        }
+        if(!found){
+            System.out.print("A branch with that name does not exist.");
+            System.exit(0);
         }
         Commit thisBranch = getCurrentBranchMaster();
 
@@ -798,7 +800,6 @@ public class Repository {
         public static final Comparator<branchHead> BY_BRANCH_NAME = Comparator.comparing(b -> b.branchName);
         String hash;
         String branchName;
-
         @Override
         public boolean equals(Object o) {
             if (o instanceof branchHead) {
