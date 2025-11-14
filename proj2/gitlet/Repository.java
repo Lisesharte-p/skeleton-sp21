@@ -28,7 +28,7 @@ public class Repository {
         @Override
         public boolean accept(File dir, String name) {
             return !(new File(dir, name).isFile()) && !name.equals("STAGINGAREA");
-        }//changed for returning directory(added "!")
+        }
     };
     static ArrayList<String> HEAD;
     static ArrayList<String> currentMasterTracked;
@@ -69,8 +69,7 @@ public class Repository {
                 && MASTER.exists()
                 && TRACKING.exists()
                 && STAGING.exists()
-                && RMFILE.exists())
-        {
+                && RMFILE.exists()) {
             writeObject(HEADFILE, HEAD);
             writeObject(MASTER, currentBranchMaster);
             writeObject(TRACKING, currentMasterTracked);
@@ -159,8 +158,8 @@ public class Repository {
     public static void initCommit(String message) {
         File newRepo = GITLET_DIR;
         if (newRepo.exists()) {
-            System.out.println("A Gitlet version-control system already" +
-                    " exists in the current directory.");
+            System.out.println("A Gitlet version-control system already"
+                    + " exists in the current directory.");
             return;
         }
 
@@ -326,11 +325,11 @@ public class Repository {
                         writeContents(newFile, createFile);
                     } else {
                         Commit perv = newCommit.getPervCommit();
-                        String Content = readContentsAsString(join(GITLET_DIR,
+                        String content = readContentsAsString(join(GITLET_DIR,
                                 perv.getHashMetadata(), fs));
                         File newFile = join(f, fs);
                         newFile.createNewFile();
-                        writeContents(newFile, Content);
+                        writeContents(newFile, content);
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -374,7 +373,6 @@ public class Repository {
                 currentMasterTracked.remove(x.name);
             }
         }
-
         Commit thisCommit = new Commit(message, currentMasterTracked);
         thisCommit.pervCommit.add(currentBranchMaster.hash);
         if (merge) {
@@ -385,7 +383,6 @@ public class Repository {
             System.out.println("No changes added to the commit.");
             System.exit(0);
         }
-
         addCommit(thisCommit);
     }
 
@@ -393,7 +390,6 @@ public class Repository {
         branchHead newBranch = new branchHead();
         newBranch.hash = currentBranchMaster.hash;
         newBranch.branchName = arg;
-        //currentBranchMaster = newBranch.hash;
         for (branchHead x : branches) {
             if (x.branchName.equals(arg)) {
                 System.out.println("A branch with that name already exists.");
@@ -401,7 +397,6 @@ public class Repository {
             }
         }
         branches.add(newBranch);
-        writeObject(BRANCHES, branches);
         saveConfig();
     }
 
@@ -412,81 +407,69 @@ public class Repository {
         for (branchHead x : branches) {
             if (Objects.equals(x.branchName, currentBranchMaster.branchName)) {
                 System.out.print("*");
-                System.out.print(x.branchName);
-                System.out.print("\n");
+                System.out.println(x.branchName);
             } else {
                 System.out.println(x.branchName);
-
             }
         }
-        System.out.print("\n");
-        System.out.println("=== Staged Files ===");
+        System.out.println("\n=== Staged Files ===");
         for (stagedPair x : STAGING_AREA) {
             if (!x.markedToRemove) {
                 System.out.println(x.name);
             }
-
         }
-        System.out.print("\n");
-        System.out.println("=== Removed Files ===");
+
+        System.out.println("\n=== Removed Files ===");
         if (removedFiles != null) {
             removedFiles.sort(Comparator.naturalOrder());
             for (String x : removedFiles) {
                 System.out.println(x);
-
             }
         }
-        System.out.println();
-        System.out.print("=== Modifications Not Staged For Commit ===\n");
-        List<String> temp1 = plainFilenamesIn(join(GITLET_DIR, currentBranchMaster.hash));
-        ArrayList<String> filesInCurrentCommit = new ArrayList<>(temp1);
+
+        System.out.print("\n=== Modifications Not Staged For Commit ===\n");
+        ArrayList<String> filesInCurrentCommit = new ArrayList<>(
+                plainFilenamesIn(join(GITLET_DIR, currentBranchMaster.hash)));
         filesInCurrentCommit.remove("data");
-        List<String> temp2 = plainFilenamesIn(CWD);
-        ArrayList<String> filesInCWD = new ArrayList<>(temp2);
-        List<String> temp3 = plainFilenamesIn(STAGINGFOLDER);
-        ArrayList<String> filesStaged = new ArrayList<>(temp3);
+        ArrayList<String> filesInCWD = new ArrayList<>(plainFilenamesIn(CWD));
+        ArrayList<String> filesStaged = new ArrayList<>(plainFilenamesIn(STAGINGFOLDER));
         if (filesInCurrentCommit != null && filesInCWD != null) {
             for (String x : filesInCWD) {
                 if (filesInCurrentCommit.contains(x)) {
-                    String fileContent = readContentsAsString(join(GITLET_DIR, currentBranchMaster.hash, x));
+                    String fileContent = readContentsAsString(join(GITLET_DIR,
+                            currentBranchMaster.hash, x));
                     String fileInCWD = readContentsAsString(join(CWD, x));
                     if (!sha1(fileInCWD).equals(sha1(fileContent))) {
                         if (!filesStaged.contains(x)) {
-                            System.out.print(x);
-                            System.out.print(" (modified)\n");
+                            System.out.printf("%s (modified)\n",x);
                             continue;
                         }
                     }
                 }
                 if (filesStaged.contains(x)) {
                     if (!join(CWD, x).exists()) {
-                        System.out.print(x);
-                        System.out.print(" (deleted)\n");
+                        System.out.printf("%s (deleted)\n",x);
                         continue;
                     }
                     String fileInCWD = readContentsAsString(join(CWD, x));
                     String fileStaged = readContentsAsString(join(STAGINGFOLDER, x));
                     if (!sha1(fileInCWD).equals(sha1(fileStaged))) {
-                        System.out.print(x);
-                        System.out.print(" (modified)\n");
+                        System.out.printf("%s (modified)\n",x);
                         continue;
                     }
                 }
                 if (filesInCurrentCommit.contains(x) && !join(CWD, x).exists()) {
                     if (!removedFiles.contains(x)) {
-                        System.out.print(x);
-                        System.out.print(" (deleted)\n");
+                        System.out.printf("%s (deleted)\n",x);
                     }
                 }
             }
         }
-        System.out.println();
-        System.out.println("=== Untracked Files ===");
+        System.out.println("\n=== Untracked Files ===");
         if (filesInCWD != null) {
             for (String x : filesInCWD) {
                 if (!currentMasterTracked.contains(x) && !filesStaged.contains(x)) {
                     System.out.println(x);
-
                 }
             }
         }
@@ -570,18 +553,18 @@ public class Repository {
             }
         }
         for (String x : filesInCommit) {
-            File CWDFILE = join(CWD, x);
-            if (!CWDFILE.exists()) {
+            File cwdFile = join(CWD, x);
+            if (!cwdFile.exists()) {
                 try {
-                    CWDFILE.createNewFile();
+                    cwdFile.createNewFile();
                     String content = readContentsAsString(join(fileToCheck, x));
-                    writeObject(CWDFILE, content);
+                    writeContents(cwdFile, content);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             } else {
                 String content = readContentsAsString(join(fileToCheck, x));
-                writeObject(CWDFILE, content);
+                writeContents(cwdFile, content);
             }
         }
         for (String x : new ArrayList<>(plainFilenamesIn(STAGINGFOLDER))) {
@@ -627,7 +610,8 @@ public class Repository {
     }
 
     public static void log() {
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEE MMM d HH:mm:ss yyyy Z", Locale.US);
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(
+                "EEE MMM d HH:mm:ss yyyy Z", Locale.US);
         ZoneId targetZone = ZoneId.of("Asia/Shanghai");
         Commit currentCommit = Repository.getCurrentBranchMaster();
         while (true) {
@@ -635,7 +619,9 @@ public class Repository {
             String Hash = String.format("commit %s", currentCommit.getHashMetadata());
             System.out.println(Hash);
             if (currentCommit.isMerge) {
-                System.out.printf("Merge: %s %s%n", currentCommit.pervCommit.get(0).substring(0, 7), currentCommit.pervCommit.get(1).substring(0, 7));
+                System.out.printf("Merge: %s %s%n",
+                        currentCommit.pervCommit.get(0).substring(0, 7),
+                        currentCommit.pervCommit.get(1).substring(0, 7));
             }
             Instant instant = currentCommit.date.toInstant();
             ZonedDateTime zonedDate = instant.atZone(targetZone);
@@ -644,9 +630,8 @@ public class Repository {
             System.out.println(formattedDate);
             System.out.println(currentCommit.getMessage());
             System.out.println();
-
             currentCommit = currentCommit.getPervCommit();
-            if(currentCommit == null){
+            if (currentCommit == null) {
                 System.exit(0);
             }
         }

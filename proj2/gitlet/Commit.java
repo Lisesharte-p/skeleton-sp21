@@ -16,13 +16,13 @@ public class Commit implements Serializable {
     private final String message;
     private final ArrayList<String> fileHash;
 
-    public boolean isMerge;
-    public ArrayList<String> files;
-    public ArrayList<String> pervCommit;
-    public ArrayList<String> tracked;
-    public Date date;
-    public String hashMetadata;
-    public String timeStamp;
+    boolean isMerge;
+    ArrayList<String> files;
+    ArrayList<String> pervCommit;
+    ArrayList<String> tracked;
+    Date date;
+    String hashMetadata;
+    String timeStamp;
 
     Commit(String message, ArrayList<String> files) {
         this.message = message;
@@ -49,7 +49,7 @@ public class Commit implements Serializable {
     }
 
     public Commit getPervCommit() {
-        if(pervCommit.isEmpty()){
+        if (pervCommit.isEmpty()) {
             return null;
         }
         File perv = join(Repository.GITLET_DIR, pervCommit.get(0), "data");
