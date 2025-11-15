@@ -381,6 +381,7 @@ public class Repository {
             thisCommit.pervCommit.add(mergingCommit);
             thisCommit.isMerge = true;
         }
+        thisCommit.calculateHash();
         if (!thisCommit.checkChanged()) {
             System.out.println("No changes added to the commit.");
             System.exit(0);
@@ -620,6 +621,9 @@ public class Repository {
                 "EEE MMM d HH:mm:ss yyyy Z", Locale.US);
         ZoneId targetZone = ZoneId.of("Asia/Shanghai");
         Commit currentCommit = Repository.getCurrentBranchMaster();
+        if(currentCommit == null){
+            return;
+        }
         while (true) {
             System.out.println("===");
             String hash = String.format("commit %s", currentCommit.getHashMetadata());
@@ -636,10 +640,15 @@ public class Repository {
             System.out.println(formattedDate);
             System.out.println(currentCommit.getMessage());
             System.out.println();
-            currentCommit = currentCommit.getPervCommit();
-            if (currentCommit == null) {
+            System.out.flush();
+            Commit next=currentCommit.getPervCommit();
+            if (currentCommit.getMessage().equals("initial commit")) {
                 return;
             }
+            if(next == null){
+                return;
+            }
+            currentCommit = next;
         }
     }
 
@@ -689,6 +698,18 @@ public class Repository {
         k.addAll(lca.files);
         removedFiles = new ArrayList<>();
         currentMasterTracked = new ArrayList<>(thisBranch.files);
+        boolean conflict = processMerge(thisBranch, givenBranch, k, lca);
+        saveConfig();
+        makeCommit(String.format("Merged %s into %s.",
+                branchName, currentBranchMaster.branchName),
+                true,
+                givenBranch.getHashMetadata());
+        if (conflict) {
+            System.out.println("Encountered a merge conflict.");
+        }
+    }
+
+    public static boolean processMerge(Commit thisBranch, Commit givenBranch, HashSet<String> k, Commit lca){
         boolean conflict = false;
         for (String x : k) {
             File thisFile = join(GITLET_DIR, thisBranch.getHashMetadata(), x);
@@ -744,14 +765,7 @@ public class Repository {
                 conflict = true;
             }
         }
-        saveConfig();
-        makeCommit(String.format("Merged %s into %s.",
-                branchName, currentBranchMaster.branchName),
-                true,
-                givenBranch.getHashMetadata());
-        if (conflict) {
-            System.out.println("Encountered a merge conflict.");
-        }
+        return conflict;
     }
 
     public static String getLCA(Commit A, Commit B) {

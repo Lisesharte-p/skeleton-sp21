@@ -14,13 +14,12 @@ public class Main {
      * <COMMAND> <OPERAND1> <OPERAND2> ...
      */
     public static void main(String[] args) {
-        // TODO: what if args is empty?
-
         if (args.length == 0) {
             System.out.print("Please enter a command.\n");
 
             return;
         }
+
         if (!Repository.GITLET_DIR.exists()&& !Objects.equals(args[0], "init")) {
             System.out.print("Not in an initialized Gitlet directory.");
             return;
