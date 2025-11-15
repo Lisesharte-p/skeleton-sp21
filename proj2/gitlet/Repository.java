@@ -733,6 +733,7 @@ public class Repository {
                     }
                 }
                 writeContents(CWDFile, newFileContent);
+                addFile(x);
                 conflict = true;
             }
         }
