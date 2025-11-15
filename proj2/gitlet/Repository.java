@@ -211,18 +211,20 @@ public class Repository {
         if (join(STAGINGFOLDER, arg).exists()) {
             join(STAGINGFOLDER, arg).delete();
             STAGING_AREA.remove(rmFile);
-            currentMasterTracked.remove(arg);
+            if(!getCurrentBranchMaster().files.contains(arg))
+            {
+                currentMasterTracked.remove(arg);
+            }
             saveConfig();
             System.exit(0);
         }
-        if (Repository.currentMasterTracked.contains(arg)) {
-            Repository.currentMasterTracked.remove(arg);
+        if (getCurrentBranchMaster().files.contains(arg)) {
+            currentMasterTracked.remove(arg);
             File workingFile = join(Repository.CWD, arg);
             removedFiles.add(arg);
             STAGING_AREA.add(rmFile);
             workingFile.delete();
             saveConfig();
-
             System.exit(0);
         }
 
@@ -441,7 +443,7 @@ public class Repository {
                     String fileInCWD = readContentsAsString(join(CWD, x));
                     if (!sha1(fileInCWD).equals(sha1(fileContent))) {
                         if (!filesStaged.contains(x)) {
-                            System.out.printf("%s (modified)\n",x);
+                            System.out.printf("%s (modified)\n", x);
                             continue;
                         }
                     }
@@ -532,7 +534,8 @@ public class Repository {
             System.out.println("No such branch exists.");
             System.exit(0);
         }
-        if (commit.equals(currentBranchMaster.hash) && name.equals(currentBranchMaster.branchName)) {
+        if (commit.equals(currentBranchMaster.hash)
+                && name.equals(currentBranchMaster.branchName)) {
             System.out.println("No need to checkout the current branch.");
             System.exit(0);
         }
@@ -643,18 +646,17 @@ public class Repository {
     public static void merge(String branchName) {
         if (!STAGING_AREA.isEmpty() || !removedFiles.isEmpty()) {
             System.out.print("You have uncommitted changes.");
+            return;
         }
         Commit givenBranch = null;
-        String currentBranchMasterName = "";
         boolean found = false;
         for (BranchHead x : branches) {
             if (x.branchName.equals(branchName)) {
                 givenBranch = readObject(join(GITLET_DIR, x.hash, "data"), Commit.class);
-                found=true;
+                found = true;
             }
             if (x.hash.equals(currentBranchMaster.hash)) {
-                currentBranchMasterName = x.branchName;
-                if (currentBranchMasterName.equals(branchName)) {
+                if (currentBranchMaster.branchName.equals(branchName)) {
                     System.out.print("Cannot merge a branch with itself.");
                     System.exit(0);
                 }
@@ -665,7 +667,6 @@ public class Repository {
             System.exit(0);
         }
         Commit thisBranch = getCurrentBranchMaster();
-
         String lcaHash = getLCA(thisBranch, givenBranch);
         Commit lca = readObject(join(GITLET_DIR, lcaHash, "data"), Commit.class);
         if (lca.getHashMetadata().equals(givenBranch.getHashMetadata())) {
@@ -680,12 +681,11 @@ public class Repository {
         k.addAll(thisBranch.files);
         for (String x : k) {
             if (!currentMasterTracked.contains(x) && join(CWD, x).exists()) {
-                System.out.println("There is an untracked file in the way; " +
-                        "delete it, or add and commit it first.");
+                System.out.println("There is an untracked file in the way; "
+                        + "delete it, or add and commit it first.");
                 System.exit(0);
             }
         }
-
         k.addAll(lca.files);
         removedFiles = new ArrayList<>();
         currentMasterTracked = new ArrayList<>(thisBranch.files);
@@ -746,7 +746,7 @@ public class Repository {
         }
         saveConfig();
         makeCommit(String.format("Merged %s into %s.",
-                branchName, currentBranchMasterName),
+                branchName, currentBranchMaster.branchName),
                 true,
                 givenBranch.getHashMetadata());
         if (conflict) {
@@ -776,7 +776,7 @@ public class Repository {
         if (af.exists() && bf.exists()) {
             return !sha1(readContentsAsString(af)).equals(sha1(readContentsAsString(bf)));
         }
-        if(!af.exists() && !bf.exists()){
+        if (!af.exists() && !bf.exists()) {
             return false;
         }
         return true;
