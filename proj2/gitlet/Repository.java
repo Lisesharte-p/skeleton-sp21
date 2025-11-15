@@ -446,7 +446,13 @@ public class Repository {
                         }
                     }
                 }
-                if (filesStaged.contains(x)|| currentMasterTracked.contains(x)) {
+                if(currentMasterTracked.contains(x)){
+                    if (!join(CWD, x).exists()&&!removedFiles.contains(x)) {
+                        System.out.printf("%s (deleted)\n",x);
+                        continue;
+                    }
+                }
+                if (filesStaged.contains(x)) {
                     if (!join(CWD, x).exists()) {
                         System.out.printf("%s (deleted)\n",x);
                         continue;
