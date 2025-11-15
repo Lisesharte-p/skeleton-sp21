@@ -256,7 +256,7 @@ public class Repository {
 
 
                     saveConfig();
-                    System.exit(0);
+//                    System.exit(0);
                 }
             }
             if (stageFile.exists()) {
@@ -279,7 +279,7 @@ public class Repository {
                     writeContents(stageFile, argContent);
                 }
                 saveConfig();
-                System.exit(0);
+//                System.exit(0);
             }
             if (!STAGING_AREA.contains(newFile)) {
                 STAGING_AREA.add(newFile);
@@ -287,7 +287,7 @@ public class Repository {
                     stageFile.createNewFile();
                     writeContents(stageFile, argContent);
                     saveConfig();
-                    System.exit(0);
+//                    System.exit(0);
 
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -688,12 +688,18 @@ public class Repository {
             File CWDFile = join(CWD, x);
             if (!thisFile.exists() && !givenFile.exists()) {
                 continue;
-            } else if (checkFileChanged(LCA, givenBranch, x) && !checkFileChanged(LCA, thisBranch, x)) {
+            } else if (givenFile.exists()&& checkFileChanged(LCA, givenBranch, x) && !checkFileChanged(LCA, thisBranch, x)) {
                 if (givenFile.exists()) {
                     checkOutFile(givenBranch.getHashMetadata(), x);
                     addFile(x);
                 }
-            }  else if (!LCAFile.exists() && givenFile.exists() && !thisFile.exists()) {
+            }else if(!checkFileChanged(LCA, givenBranch, x) && checkFileChanged(LCA, thisBranch, x)){
+                continue;
+            }else if(!checkFileChanged(thisBranch,givenBranch,x)){
+                continue;
+            }else if(!LCAFile.exists() && !givenFile.exists() && thisFile.exists()){
+                continue;
+            }else if (!LCAFile.exists() && givenFile.exists() && !thisFile.exists()) {
                 checkOutFile(givenBranch.getHashMetadata(), x);
                 addFile(x);
             }  else if (!checkFileChanged(LCA, thisBranch, x) && !givenFile.exists()) {
@@ -752,6 +758,9 @@ public class Repository {
         File BF = join(GITLET_DIR, B.getHashMetadata(), fileName);
         if (AF.exists() && BF.exists()) {
             return !sha1(readContentsAsString(AF)).equals(sha1(readContentsAsString(BF)));
+        }
+        if(!AF.exists()&&!BF.exists()){
+            return false;
         }
         return true;
     }
