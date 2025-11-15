@@ -446,7 +446,7 @@ public class Repository {
                         }
                     }
                 }
-                if (filesStaged.contains(x)) {
+                if (filesStaged.contains(x)|| currentMasterTracked.contains(x)) {
                     if (!join(CWD, x).exists()) {
                         System.out.printf("%s (deleted)\n",x);
                         continue;
@@ -584,7 +584,7 @@ public class Repository {
                 if (!x.branchName.equals(currentBranchMaster.branchName)) {
                     branches.remove(x);
                     saveConfig();
-                    System.exit(0);
+                    return;
                 } else {
                     System.out.println("Cannot remove the current branch.");
                     System.exit(0);
@@ -592,7 +592,6 @@ public class Repository {
             }
         }
         System.out.println("A branch with that name does not exist.");
-        System.exit(0);
     }
 
     public static void reset(String commitHash) {
@@ -607,7 +606,7 @@ public class Repository {
                 x.hash=commitHash;
                 checkOutAllFile(currentBranchMaster.branchName);
                 saveConfig();
-                System.exit(0);
+                return;
             }
         }
     }
@@ -686,6 +685,7 @@ public class Repository {
         }
 
         k.addAll(LCA.files);
+        removedFiles=new ArrayList<>();
         currentMasterTracked = new ArrayList<>(thisBranch.files);
         boolean conflict = false;
         for (String x : k) {
@@ -724,7 +724,7 @@ public class Repository {
                 if (givenFile.exists()) {
                     b = readContentsAsString(givenFile);
                 }
-                String newFileContent = String.format("<<<<<<< HEAD\n%s=======\n%s>>>>>>>", a, b);
+                String newFileContent = String.format("<<<<<<< HEAD\n%s=======\n%s>>>>>>>\n", a, b);
                 if (!CWDFile.exists()) {
                     try {
                         CWDFile.createNewFile();
@@ -736,6 +736,7 @@ public class Repository {
                 conflict = true;
             }
         }
+        saveConfig();
         makeCommit(String.format("Merged %s into %s.", branchName, currentBranchMasterName), true, givenBranch.getHashMetadata());
         if (conflict) {
             System.out.println("Encountered a merge conflict.");
