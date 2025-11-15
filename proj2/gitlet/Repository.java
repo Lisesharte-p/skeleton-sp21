@@ -341,7 +341,7 @@ public class Repository {
         newCommit.tracked = new ArrayList<>(currentMasterTracked);
         if (branches != null) {
             for (BranchHead x : branches) {
-                if (x.hash.equals(currentBranchMaster.hash)) {
+                if (x.branchName.equals(currentBranchMaster.branchName)) {
                     x.hash = newCommit.getHashMetadata();
                     break;
                 }
