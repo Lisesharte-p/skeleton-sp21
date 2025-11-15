@@ -423,7 +423,7 @@ public class Repository {
         if (removedFiles != null) {
             removedFiles.sort(Comparator.naturalOrder());
             for (String x : removedFiles) {
-                if(!join(CWD,x).exists())
+                if(join(CWD,x).exists())
                 {
                     System.out.println(x);
                 }
@@ -637,7 +637,7 @@ public class Repository {
             System.out.println();
             currentCommit = currentCommit.getPervCommit();
             if (currentCommit == null) {
-                System.exit(0);
+                return;
             }
         }
     }
