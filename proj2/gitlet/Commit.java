@@ -44,7 +44,7 @@ public class Commit implements Serializable {
 
     }
     public void calculateHash() {
-        StringBuilder fileContentBuilder= new StringBuilder();
+        StringBuilder fileContentBuilder = new StringBuilder();
         for (String x:files) {
             Repository.StagedPair f = new Repository.StagedPair();
             f.name = x;
@@ -55,7 +55,9 @@ public class Commit implements Serializable {
                         pervCommit.get(0), x)));
             }
         }
-        this.hashMetadata = sha1(message, timeStamp, fileContentBuilder.toString(), pervCommit.get(0));
+        this.hashMetadata = sha1(message, timeStamp,
+                fileContentBuilder.toString(),
+                pervCommit.get(0));
     }
 
     public Commit getPervCommit() {
