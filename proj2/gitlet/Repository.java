@@ -423,7 +423,10 @@ public class Repository {
         if (removedFiles != null) {
             removedFiles.sort(Comparator.naturalOrder());
             for (String x : removedFiles) {
-                System.out.println(x);
+                if(!join(CWD,x).exists())
+                {
+                    System.out.println(x);
+                }
             }
         }
 
@@ -667,10 +670,10 @@ public class Repository {
 
         String lcaHash = getLCA(thisBranch, givenBranch);
         Commit LCA = readObject(join(GITLET_DIR, lcaHash, "data"), Commit.class);
-        if (LCA.getHashMetadata().equals(thisBranch.getHashMetadata())) {
+        if (LCA.getHashMetadata().equals(givenBranch.getHashMetadata())) {
             System.out.print("Given branch is an ancestor of the current branch.");
             System.exit(0);
-        } else if (LCA.getHashMetadata().equals(givenBranch.getHashMetadata())) {
+        } else if (LCA.getHashMetadata().equals(thisBranch.getHashMetadata())) {
             checkOutAllFile(branchName);
             System.out.print("Current branch fast-forwarded.");
             System.exit(0);
