@@ -256,10 +256,10 @@ public class Repository {
 
 
                     saveConfig();
-//                    System.exit(0);
+                    return;
                 }
             }
-            else if (stageFile.exists()) {
+            if (stageFile.exists()) {
                 String stageContent = readContentsAsString(stageFile);
                 if (sha1(stageContent).equals(sha1(argContent))) {
                     for (stagedPair x : STAGING_AREA) {
@@ -279,7 +279,7 @@ public class Repository {
                     writeContents(stageFile, argContent);
                 }
                 saveConfig();
-                System.exit(0);
+                return;
             }
             if (!STAGING_AREA.contains(newFile)) {
                 STAGING_AREA.add(newFile);
@@ -287,7 +287,7 @@ public class Repository {
                     stageFile.createNewFile();
                     writeContents(stageFile, argContent);
                     saveConfig();
-//                    System.exit(0);
+                    return;
 
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -296,7 +296,7 @@ public class Repository {
 
         } else {
             System.out.println("File does not exist.");
-            System.exit(0);
+            return;
         }
         writeObject(STAGING, STAGING_AREA);
         writeObject(TRACKING, currentMasterTracked);
@@ -678,6 +678,13 @@ public class Repository {
         }
         HashSet<String> k = new HashSet<>(givenBranch.files);
         k.addAll(thisBranch.files);
+        for (String x : k) {
+            if (!currentMasterTracked.contains(x) && join(CWD, x).exists()) {
+                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.exit(0);
+            }
+        }
+
         k.addAll(LCA.files);
         currentMasterTracked = new ArrayList<>(thisBranch.files);
         boolean conflict = false;
@@ -729,13 +736,10 @@ public class Repository {
                 conflict = true;
             }
         }
-
         makeCommit(String.format("Merged %s into %s.", branchName, currentBranchMasterName), true, givenBranch.getHashMetadata());
-
         if (conflict) {
             System.out.println("Encountered a merge conflict.");
         }
-
     }
 
     public static String getLCA(Commit A, Commit B) {
