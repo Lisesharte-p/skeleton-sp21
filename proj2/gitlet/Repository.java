@@ -641,7 +641,7 @@ public class Repository {
     }
 
     public static void merge(String branchName) {
-        if (!STAGING_AREA.isEmpty()) {
+        if (!STAGING_AREA.isEmpty()||!removedFiles.isEmpty()) {
             System.out.print("You have uncommitted changes.");
         }
         Commit givenBranch = null;
@@ -658,7 +658,6 @@ public class Repository {
                     System.out.print("Cannot merge a branch with itself.");
                     System.exit(0);
                 }
-
             }
         }
         if(!found){
@@ -694,25 +693,14 @@ public class Repository {
                     checkOutFile(givenBranch.getHashMetadata(), x);
                     addFile(x);
                 }
-            } else if (!(checkFileChanged(LCA, givenBranch, x) && !checkFileChanged(LCA, thisBranch, x))) {
-                if (thisFile.exists()) {
-                    checkOutFile(thisBranch.getHashMetadata(), x);
-                    addFile(x);
-                }
-            } else if (sha1(readContentsAsString(thisFile)).equals(sha1(readContentsAsString(givenFile)))) {
-                checkOutFile(thisBranch.getHashMetadata(), x);
-                addFile(x);
-            } else if (!LCAFile.exists() && givenFile.exists() && !thisFile.exists()) {
+            }  else if (!LCAFile.exists() && givenFile.exists() && !thisFile.exists()) {
                 checkOutFile(givenBranch.getHashMetadata(), x);
                 addFile(x);
-            } else if (!LCAFile.exists() && !givenFile.exists() && thisFile.exists()) {
-                checkOutFile(thisBranch.getHashMetadata(), x);
-            } else if (!checkFileChanged(LCA, thisBranch, x) && !givenFile.exists()) {
+            }  else if (!checkFileChanged(LCA, thisBranch, x) && !givenFile.exists()) {
+                currentMasterTracked.remove(x);
                 if (CWDFile.exists()) {
                     CWDFile.delete();
                 }
-            } else if (!checkFileChanged(LCA, givenBranch, x) && !thisFile.exists()) {
-                continue;
             } else if (checkFileChanged(LCA, thisBranch, x) && checkFileChanged(LCA, givenBranch, x) && checkFileChanged(thisBranch, givenBranch, x)) {
                 String a = "";
                 String b = "";
