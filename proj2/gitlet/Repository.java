@@ -279,7 +279,7 @@ public class Repository {
                     writeContents(stageFile, argContent);
                 }
                 saveConfig();
-//                System.exit(0);
+                System.exit(0);
             }
             if (!STAGING_AREA.contains(newFile)) {
                 STAGING_AREA.add(newFile);
@@ -679,7 +679,7 @@ public class Repository {
         HashSet<String> k = new HashSet<>(givenBranch.files);
         k.addAll(thisBranch.files);
         k.addAll(LCA.files);
-        currentMasterTracked = new ArrayList<>();
+        currentMasterTracked = new ArrayList<>(thisBranch.files);
         boolean conflict = false;
         for (String x : k) {
             File thisFile = join(GITLET_DIR, thisBranch.getHashMetadata(), x);
@@ -703,8 +703,9 @@ public class Repository {
                 checkOutFile(givenBranch.getHashMetadata(), x);
                 addFile(x);
             }  else if (!checkFileChanged(LCA, thisBranch, x) && !givenFile.exists()) {
-                currentMasterTracked.remove(x);
+
                 if (CWDFile.exists()) {
+                    currentMasterTracked.remove(x);
                     CWDFile.delete();
                 }
             } else if (checkFileChanged(LCA, thisBranch, x) && checkFileChanged(LCA, givenBranch, x) && checkFileChanged(thisBranch, givenBranch, x)) {
