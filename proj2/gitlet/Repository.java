@@ -211,8 +211,7 @@ public class Repository {
         if (join(STAGINGFOLDER, arg).exists()) {
             join(STAGINGFOLDER, arg).delete();
             STAGING_AREA.remove(rmFile);
-            if(!getCurrentBranchMaster().files.contains(arg))
-            {
+            if (!getCurrentBranchMaster().files.contains(arg)) {
                 currentMasterTracked.remove(arg);
             }
             saveConfig();
@@ -576,6 +575,7 @@ public class Repository {
         for (String x : new ArrayList<>(plainFilenamesIn(STAGINGFOLDER))) {
             join(STAGINGFOLDER, x).delete();
         }
+        removedFiles = new ArrayList<>();
         currentMasterTracked = thisBranch.tracked;
         currentBranchMaster.hash = commit;
         currentBranchMaster.branchName = name;
@@ -621,7 +621,7 @@ public class Repository {
                 "EEE MMM d HH:mm:ss yyyy Z", Locale.US);
         ZoneId targetZone = ZoneId.of("Asia/Shanghai");
         Commit currentCommit = Repository.getCurrentBranchMaster();
-        if(currentCommit == null){
+        if (currentCommit == null) {
             return;
         }
         while (true) {
@@ -641,11 +641,11 @@ public class Repository {
             System.out.println(currentCommit.getMessage());
             System.out.println();
             System.out.flush();
-            Commit next=currentCommit.getPervCommit();
+            Commit next = currentCommit.getPervCommit();
             if (currentCommit.getMessage().equals("initial commit")) {
                 return;
             }
-            if(next == null){
+            if (next == null) {
                 return;
             }
             currentCommit = next;
@@ -709,7 +709,10 @@ public class Repository {
         }
     }
 
-    public static boolean processMerge(Commit thisBranch, Commit givenBranch, HashSet<String> k, Commit lca){
+    public static boolean processMerge(Commit thisBranch,
+                                       Commit givenBranch,
+                                       HashSet<String> k,
+                                       Commit lca) {
         boolean conflict = false;
         for (String x : k) {
             File thisFile = join(GITLET_DIR, thisBranch.getHashMetadata(), x);
@@ -821,6 +824,10 @@ public class Repository {
             }
             return false;
         }
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, markedToRemove);
+        }
 
     }
 
@@ -839,6 +846,10 @@ public class Repository {
                 return this.branchName.equals(o);
             }
             return false;
+        }
+        @Override
+        public int hashCode() {
+            return Objects.hash(hash, branchName);
         }
 
     }

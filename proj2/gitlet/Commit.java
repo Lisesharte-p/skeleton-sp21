@@ -43,20 +43,19 @@ public class Commit implements Serializable {
 
 
     }
-    public void calculateHash(){
-        StringBuilder Files= new StringBuilder();
-        for(String x:files){
+    public void calculateHash() {
+        StringBuilder fileContentBuilder= new StringBuilder();
+        for (String x:files) {
             Repository.StagedPair f = new Repository.StagedPair();
             f.name = x;
-            if(Repository.STAGING_AREA.contains(f))
-            {
-                Files.append(readContentsAsString(join(Repository.STAGINGFOLDER, x)));
-            }else{
-                Files.append(readContentsAsString(join(Repository.GITLET_DIR,
+            if (Repository.STAGING_AREA.contains(f)) {
+                fileContentBuilder.append(readContentsAsString(join(Repository.STAGINGFOLDER, x)));
+            } else {
+                fileContentBuilder.append(readContentsAsString(join(Repository.GITLET_DIR,
                         pervCommit.get(0), x)));
             }
         }
-        this.hashMetadata = sha1(message, timeStamp, Files.toString(), pervCommit.get(0));
+        this.hashMetadata = sha1(message, timeStamp, fileContentBuilder.toString(), pervCommit.get(0));
     }
 
     public Commit getPervCommit() {
