@@ -259,7 +259,7 @@ public class Repository {
 //                    System.exit(0);
                 }
             }
-            if (stageFile.exists()) {
+            else if (stageFile.exists()) {
                 String stageContent = readContentsAsString(stageFile);
                 if (sha1(stageContent).equals(sha1(argContent))) {
                     for (stagedPair x : STAGING_AREA) {
@@ -717,7 +717,7 @@ public class Repository {
                 if (givenFile.exists()) {
                     b = readContentsAsString(givenFile);
                 }
-                String newFileContent = String.format("<<<<<<< HEAD\n%s\n=======\n%s\n>>>>>>>", a, b);
+                String newFileContent = String.format("<<<<<<< HEAD\n%s=======\n%s>>>>>>>", a, b);
                 if (!CWDFile.exists()) {
                     try {
                         CWDFile.createNewFile();
