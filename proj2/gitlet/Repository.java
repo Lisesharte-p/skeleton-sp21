@@ -464,7 +464,7 @@ public class Repository {
                 }
             }
             for (String x : filesInCurrentCommit){
-                if(!removedFiles.contains(x)&&!join(CWD,x).exists()){
+                if (!removedFiles.contains(x)&&!join(CWD, x).exists()) {
                     System.out.printf("%s (deleted)\n", x);
                 }
             }
