@@ -346,7 +346,6 @@ public class Repository {
                     break;
                 }
             }
-
         }
         currentBranchMaster.hash = newCommit.getHashMetadata();
         STAGING_AREA = new ArrayList<>();
@@ -701,7 +700,7 @@ public class Repository {
         boolean conflict = processMerge(thisBranch, givenBranch, k, lca);
         saveConfig();
         makeCommit(String.format("Merged %s into %s.",
-                branchName, currentBranchMaster.branchName),
+                        branchName, currentBranchMaster.branchName),
                 true,
                 givenBranch.getHashMetadata());
         if (conflict) {
@@ -771,18 +770,51 @@ public class Repository {
         return conflict;
     }
 
-    public static String getLCA(Commit A, Commit B) {
-        ArrayList<String> pervOfA = new ArrayList<>();
-        pervOfA.add(A.getHashMetadata());
-        while (A.getPervCommit() != null) {
-            A = A.getPervCommit();
-            pervOfA.add(A.getHashMetadata());
+    public static String getLCA(Commit current, Commit given) {
+        if (current.getHashMetadata().equals(given.getHashMetadata())) {
+            return current.getHashMetadata();
         }
-        while (B.getPervCommit() != null) {
-            if (pervOfA.contains(B.getHashMetadata())) {
-                return B.getHashMetadata();
+        Set<String> ancestors = getAllAncestors(current);
+        return findLatestCommonAncestor(ancestors, given);
+    }
+
+    private static Set<String> getAllAncestors(Commit commit) {
+        Set<String> ancestors = new HashSet<>();
+        Queue<String> queue = new LinkedList<>();
+        queue.add(commit.getHashMetadata());
+        while (!queue.isEmpty()) {
+            String hash = queue.poll();
+            if (ancestors.contains(hash)) {
+                continue;
             }
-            B = B.getPervCommit();
+            ancestors.add(hash);
+            Commit com = readObject(join(GITLET_DIR, hash, "data"), Commit.class);
+            for (String parentHash : com.pervCommit) {
+                if (!ancestors.contains(parentHash)) {
+                    queue.add(parentHash);
+                }
+            }
+        }
+        return ancestors;
+    }
+
+    private static String findLatestCommonAncestor(Set<String> ancestors, Commit start) {
+        Queue<String> queue = new LinkedList<>();
+        Set<String> visited = new HashSet<>();
+        queue.add(start.getHashMetadata());
+        visited.add(start.getHashMetadata());
+        while (!queue.isEmpty()) {
+            String currentHash = queue.poll();
+            if (ancestors.contains(currentHash)) {
+                return currentHash;
+            }
+            Commit com = readObject(join(GITLET_DIR, currentHash, "data"), Commit.class);
+            for (String parent : com.pervCommit) {
+                if (!visited.contains(parent)) {
+                    visited.add(parent);
+                    queue.add(parent);
+                }
+            }
         }
         return null;
     }
