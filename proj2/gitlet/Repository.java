@@ -465,6 +465,12 @@ public class Repository {
                     }
                 }
             }
+            for(String x : filesInCurrentCommit){
+                if (!join(CWD,x).exists()) {
+                    System.out.printf("%s (deleted)\n", x);
+                    continue;
+                }
+            }
         }
         System.out.println("\n=== Untracked Files ===");
         if (filesInCWD != null) {
