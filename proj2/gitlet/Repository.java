@@ -419,7 +419,6 @@ public class Repository {
                 System.out.println(x.name);
             }
         }
-
         System.out.println("\n=== Removed Files ===");
         if (removedFiles != null) {
             removedFiles.sort(Comparator.naturalOrder());
@@ -427,7 +426,6 @@ public class Repository {
                 System.out.println(x);
             }
         }
-
         System.out.print("\n=== Modifications Not Staged For Commit ===\n");
         ArrayList<String> filesInCurrentCommit = new ArrayList<>(
                 plainFilenamesIn(join(GITLET_DIR, currentBranchMaster.hash)));
@@ -465,10 +463,9 @@ public class Repository {
                     }
                 }
             }
-            for(String x : filesInCurrentCommit){
-                if (!join(CWD,x).exists()) {
+            for (String x : filesInCurrentCommit){
+                if(!removedFiles.contains(x)&&!join(CWD,x).exists()){
                     System.out.printf("%s (deleted)\n", x);
-                    continue;
                 }
             }
         }
